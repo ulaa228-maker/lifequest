@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#09090b">
+<meta name="color-scheme" content="dark light">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="LifeQuest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%238b5cf6'/%3E%3Ctext x='50' y='66' font-size='44' font-weight='800' text-anchor='middle' fill='white' font-family='sans-serif'%3ELQ%3C/text%3E%3C/svg%3E">
+<script>(function(){var m;try{m=localStorage.getItem('lifequest.mode')}catch(e){}if(m!=='light'&&m!=='dark')m=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.mode=m})()</script>
+<title>LifeQuest — RPG в реальной жизни</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<style>
+  :root{--acc:#8b5cf6;--acc2:#6366f1;--onacc:#fff;--track:rgba(255,255,255,.07);color-scheme:dark}
+  html{-webkit-text-size-adjust:100%}
+  html,body{background:#09090b;color:#f4f4f5;font-family:Manrope,system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+  .mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.015));border:1px solid rgba(255,255,255,.06);border-radius:20px}
+  .mod{transition:transform .25s ease,border-color .25s ease,background .25s}
+  .mod:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--acc) 45%,transparent)}
+  .mod:active{transform:scale(.98)}
+  .acc-text{color:var(--acc)}
+  .acc-bg{background:linear-gradient(135deg,var(--acc),var(--acc2));color:var(--onacc)}
+  .acc-soft{background:color-mix(in srgb,var(--acc) 14%,transparent);color:var(--acc)}
+  .acc-border{border-color:color-mix(in srgb,var(--acc) 55%,transparent)!important}
+  .glow{position:absolute;width:320px;height:320px;right:-120px;top:-160px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--acc) 35%,transparent),transparent 70%);pointer-events:none}
+  .ico{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:color-mix(in srgb,var(--h) 15%,transparent);color:var(--h);flex-shrink:0}
+  .ico svg{width:21px;height:21px}
+  .inp{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 12px;font-size:14px;outline:none;color:#f4f4f5;min-width:0;transition:border-color .2s}
+  .inp:focus{border-color:var(--acc)}
+  .inp::placeholder{color:#71717a}
+  input[type=date].inp{color-scheme:dark}
+  .btn{background:linear-gradient(135deg,var(--acc),var(--acc2));color:var(--onacc);border-radius:12px;padding:10px 16px;font-weight:600;font-size:14px;transition:filter .2s,transform .1s;white-space:nowrap}
+  .btn:hover{filter:brightness(1.1)}.btn:active{transform:scale(.97)}
+  .btn:disabled{opacity:.35;pointer-events:none}
+  .btn-soft{background:rgba(255,255,255,.06);border-radius:12px;padding:10px 14px;font-weight:600;font-size:14px;transition:background .2s;white-space:nowrap}
+  .btn-soft:hover{background:rgba(255,255,255,.1)}
+  .btn-ghost{color:#a1a1aa;transition:color .2s,background .2s}.btn-ghost:hover{color:#fff;background:rgba(255,255,255,.06)}
+  .chip{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;transition:all .2s}
+  .chip:hover{border-color:var(--acc)}
+  .chip.on{background:color-mix(in srgb,var(--acc) 18%,transparent);border-color:var(--acc);color:#fff}
+  .label{font-size:12px;color:#a1a1aa;font-weight:500}
+  .bar{height:8px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden}
+  .bar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--acc2),var(--acc));transition:width .7s cubic-bezier(.2,.8,.2,1)}
+  .ring-p{transition:stroke-dashoffset .9s cubic-bezier(.2,.8,.2,1)}
+  .fade{animation:fade .35s ease both}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .bob{animation:bob 3s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .pet{position:relative;display:inline-block;line-height:1}
+  .pet .acc{position:absolute;left:50%;transform:translateX(-50%);line-height:1;pointer-events:none}
+  .pet .head{top:-38%;font-size:.55em}
+  .pet .face{top:24%;font-size:.42em}
+  .pet .neck{bottom:-10%;font-size:.42em}
+  .navlink{color:#a1a1aa;transition:color .2s,background .2s}
+  .navlink.on{color:#fff;background:rgba(255,255,255,.07)}
+  .mnav a{color:#71717a}.mnav a.on{color:var(--acc)}
+  .cb{width:22px;height:22px;border-radius:7px;border:1.5px solid rgba(255,255,255,.18);display:grid;place-items:center;flex-shrink:0;transition:all .2s}
+  .cb.on{background:linear-gradient(135deg,var(--acc),var(--acc2));border-color:transparent;color:var(--onacc)}
+  .cb svg{width:14px;height:14px}
+  /* sudoku */
+  .sgrid{display:grid;grid-template-columns:repeat(9,1fr);border:2px solid rgba(255,255,255,.35);border-radius:14px;overflow:hidden;aspect-ratio:1;width:100%;max-width:440px;user-select:none}
+  .sc{display:grid;place-items:center;font-size:clamp(16px,5vw,24px);font-weight:600;border-right:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);cursor:pointer;transition:background .15s}
+  .sc.br{border-right:2px solid rgba(255,255,255,.35)}.sc.bb{border-bottom:2px solid rgba(255,255,255,.35)}
+  .sc.given{color:#e4e4e7}.sc.user{color:var(--acc)}.sc.bad{color:#f87171;background:rgba(248,113,113,.12)}
+  .sc.rel{background:rgba(255,255,255,.035)}.sc.same{background:color-mix(in srgb,var(--acc) 16%,transparent)}
+  .sc.sel{background:color-mix(in srgb,var(--acc) 32%,transparent)}
+  .npad button{aspect-ratio:1;border-radius:14px;background:rgba(255,255,255,.05);font-size:20px;font-weight:600;position:relative;transition:background .15s}
+  .npad button:hover{background:rgba(255,255,255,.1)}
+  .npad button small{position:absolute;bottom:3px;right:6px;font-size:9px;color:#71717a}
+  .toast{animation:tin .3s ease both}
+  @keyframes tin{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
+  ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#27272a;border-radius:9px}
+  .noscroll::-webkit-scrollbar{display:none}
+  /* ===== light mode ===== */
+  html[data-mode=light]{color-scheme:light;--track:rgba(0,0,0,.08)}
+  html[data-mode=light],html[data-mode=light] body{background:#f4f4f8;color:#18181b}
+  html[data-mode=light] .card{background:#fff;border-color:rgba(0,0,0,.07);box-shadow:0 1px 2px rgba(0,0,0,.04),0 6px 18px -10px rgba(0,0,0,.1)}
+  html[data-mode=light] .inp{background:rgba(0,0,0,.035);border-color:rgba(0,0,0,.1);color:#18181b}
+  html[data-mode=light] .inp::placeholder{color:#a1a1aa}
+  html[data-mode=light] input[type=date].inp{color-scheme:light}
+  html[data-mode=light] .btn-soft{background:rgba(0,0,0,.06)}html[data-mode=light] .btn-soft:hover{background:rgba(0,0,0,.1)}
+  html[data-mode=light] .btn-ghost{color:#52525b}html[data-mode=light] .btn-ghost:hover{color:#18181b;background:rgba(0,0,0,.05)}
+  html[data-mode=light] .chip{background:rgba(0,0,0,.04);border-color:rgba(0,0,0,.08)}
+  html[data-mode=light] .chip.on{color:#18181b}
+  html[data-mode=light] .label{color:#52525b}
+  html[data-mode=light] .bar{background:rgba(0,0,0,.07)}
+  html[data-mode=light] .navlink{color:#52525b}html[data-mode=light] .navlink.on{color:#18181b;background:rgba(0,0,0,.06)}
+  html[data-mode=light] .mnav a{color:#71717a}html[data-mode=light] .mnav a.on{color:var(--acc)}
+  html[data-mode=light] .cb{border-color:rgba(0,0,0,.25)}
+  html[data-mode=light] .acc-text,html[data-mode=light] .mnav a.on{color:color-mix(in srgb,var(--acc) 72%,#000)}
+  html[data-mode=light] .sgrid{border-color:rgba(0,0,0,.45)}
+  html[data-mode=light] .sc{border-right-color:rgba(0,0,0,.1);border-bottom-color:rgba(0,0,0,.1)}
+  html[data-mode=light] .sc.br{border-right-color:rgba(0,0,0,.45)}html[data-mode=light] .sc.bb{border-bottom-color:rgba(0,0,0,.45)}
+  html[data-mode=light] .sc.given{color:#27272a}html[data-mode=light] .sc.rel{background:rgba(0,0,0,.04)}
+  html[data-mode=light] .npad button{background:rgba(0,0,0,.05)}html[data-mode=light] .npad button:hover{background:rgba(0,0,0,.1)}
+  html[data-mode=light] ::-webkit-scrollbar-thumb{background:#d4d4d8}
+  html[data-mode=light] .text-zinc-200,html[data-mode=light] .text-white{color:#18181b}
+  html[data-mode=light] .text-zinc-300{color:#3f3f46}
+  html[data-mode=light] .text-zinc-400{color:#52525b}
+  html[data-mode=light] .text-zinc-500,html[data-mode=light] .text-zinc-600{color:#71717a}
+  html[data-mode=light] .text-amber-300,html[data-mode=light] .text-amber-400,html[data-mode=light] .text-amber-300\/80{color:#b45309}
+  html[data-mode=light] .bg-amber-400\/10{background:rgba(245,158,11,.15)}
+  html[data-mode=light] .bg-white\/\[\.02\]{background:rgba(0,0,0,.02)}
+  html[data-mode=light] .bg-white\/\[\.03\],html[data-mode=light] .hover\:bg-white\/\[\.02\]:hover{background:rgba(0,0,0,.035)}
+  html[data-mode=light] .bg-white\/\[\.04\],html[data-mode=light] .bg-white\/\[\.05\],html[data-mode=light] .bg-white\/\[\.06\]{background:rgba(0,0,0,.05)}
+  html[data-mode=light] .border-white\/5,html[data-mode=light] .border-white\/10{border-color:rgba(0,0,0,.08)}
+  html[data-mode=light] .divide-white\/5>:not([hidden])~:not([hidden]){border-color:rgba(0,0,0,.07)}
+  html[data-mode=light] .bg-\[\#09090b\]\/80,html[data-mode=light] .bg-\[\#09090b\]\/90{background:rgba(244,244,248,.88)}
+  html[data-mode=light] .ring-\[\#09090b\]{--tw-ring-color:#f4f4f8}
+  html[data-mode=light] .bg-zinc-950{background:#fff}
+  html[data-mode=light] .bg-zinc-900\/95{background:rgba(255,255,255,.96)}
+  html[data-mode=light] .bg-black\/60{background:rgba(24,24,27,.4)}
+  html[data-mode=light] .peer:checked~.peer-checked\:border-white\/50{border-color:var(--acc)}
+  html[data-mode=light] .peer:checked~.peer-checked\:bg-white\/10{background:color-mix(in srgb,var(--acc) 14%,transparent)}
+  html,body{transition:background-color .25s,color .25s}
+  header{padding-top:env(safe-area-inset-top)}
+  @media (max-width:380px){#clkd{display:none}}
+</style>
+</head>
+<body class="min-h-screen antialiased">
+
+<header class="sticky top-0 z-30 backdrop-blur-xl bg-[#09090b]/80 border-b border-white/5">
+  <div class="max-w-6xl mx-auto px-3 sm:px-4 h-16 flex items-center gap-2 sm:gap-3">
+    <a href="#home" class="flex items-center gap-2 font-bold tracking-tight">
+      <span class="acc-bg w-9 h-9 rounded-xl grid place-items-center text-sm font-extrabold">LQ</span>
+      <span class="hidden sm:inline">LifeQuest</span>
+    </a>
+    <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[.04] border border-white/5">
+      <i data-lucide="clock-3" class="w-4 h-4 acc-text"></i>
+      <div class="leading-tight">
+        <div id="clk" class="mono text-sm tabular-nums">--:--:--</div>
+        <div id="clkd" class="text-[10px] text-zinc-500">Бишкек · GMT+6</div>
+      </div>
+    </div>
+    <nav id="dnav" class="hidden md:flex ml-3 gap-1 text-sm font-semibold"></nav>
+    <div class="ml-auto flex items-center gap-2">
+      <div class="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl bg-amber-400/10 text-amber-300 font-bold text-sm">
+        <i data-lucide="coins" class="w-4 h-4"></i><span id="coins" class="tabular-nums">0</span>
+      </div>
+      <button id="modeBtn" data-a="mode" class="w-10 h-10 rounded-xl bg-white/[.05] border border-white/5 grid place-items-center text-zinc-400" aria-label="Светлая / тёмная тема"></button>
+      <button data-a="profile" class="w-10 h-10 rounded-xl bg-white/[.05] border border-white/5 grid place-items-center text-lg relative" aria-label="Профиль">
+        <span id="avatar">🧑</span>
+        <span id="syncDot" class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-zinc-600 ring-2 ring-[#09090b]"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="view" class="max-w-6xl mx-auto px-4 pt-5 pb-28 md:pb-14"></main>
+
+<nav id="mnav" class="mnav md:hidden fixed bottom-0 inset-x-0 z-30 bg-[#09090b]/90 backdrop-blur-xl border-t border-white/5" style="padding-bottom:env(safe-area-inset-bottom)"></nav>
+
+<div id="modal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4"></div>
+<div id="toasts" class="fixed z-[60] bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none w-[92%] max-w-sm"></div>
+
+<script>
+/* ============ helpers ============ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, isFinite(x) ? x : 0));
+const pct = x => Math.round(clamp(x) * 100);
+const uid = () => Math.random().toString(36).slice(2, 9);
+const num = v => { const n = parseFloat(String(v).replace(',', '.')); return isFinite(n) ? n : 0; };
+
+/* Bishkek time: UTC+6, no DST */
+const bNow = () => new Date(Date.now() + 6 * 3600e3);
+const keyOf = d => d.toISOString().slice(0, 10);
+const today = () => keyOf(bNow());
+const fromKey = k => new Date(k + 'T00:00:00Z');
+const addDays = (k, n) => keyOf(new Date(fromKey(k).getTime() + n * 864e5));
+const dowOf = k => fromKey(k).getUTCDay();
+const weekStart = (k = today()) => addDays(k, -((dowOf(k) + 6) % 7));
+const weekDays = (k = today()) => { const s = weekStart(k); return [...Array(7)].map((_, i) => addDays(s, i)); };
+const monthKey = (k = today()) => k.slice(0, 7);
+const isWeekend = k => { const d = dowOf(k); return d === 0 || d === 6; };
+const MONTHS_G = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const MONTHS_N = ['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+const DOW_S = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+const DOW_L = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+const fmtDay = k => { const d = fromKey(k); return `${d.getUTCDate()} ${MONTHS_G[d.getUTCMonth()]}`; };
+const weekSum = obj => weekDays().reduce((a, k) => a + (+obj?.[k] || 0), 0);
+const weekCount = obj => weekDays().filter(k => obj?.[k]).length;
+const monthSum = obj => Object.entries(obj || {}).filter(([k]) => k.startsWith(monthKey())).reduce((a, [, v]) => a + (+v || 0), 0);
+const monthCount = obj => Object.entries(obj || {}).filter(([k, v]) => k.startsWith(monthKey()) && v).length;
+const daysLeftInMonth = () => { const n = bNow(); const last = new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth() + 1, 0)).getUTCDate(); return last - n.getUTCDate() + 1; };
+const plural = (n, a, b, c) => { const m = Math.abs(n) % 100, l = m % 10; return m > 10 && m < 20 ? c : l > 1 && l < 5 ? b : l === 1 ? a : c; };
+
+/* ============ data ============ */
+const SUBJECTS = ['Биология','Физика','Русский язык','Литература','География','Допризывная подготовка','Кыргызский язык','Геометрия','ЧИО','Химия','Адабият','Английский','Алгебра','История'];
+const SKATE = [
+  ['stance','Стойка и баланс на стоящей доске'],['push','Толчок и езда по прямой'],['brake','Торможение ногой'],
+  ['turn','Повороты наклоном (carving)'],['circle','Езда по кругу в обе стороны'],['slope','Спуск с небольшого уклона'],
+  ['kick','Kick turn (разворот на задних колёсах)'],['manual','Мэнуал 2 секунды'],['ollie','Олли на месте'],['ollie2','Олли в движении']
+];
+const ENG = [
+  ['goal','Определить цель: зачем мне английский'],['list','Найти 2–3 курса или школы'],['price','Узнать цены и расписание'],
+  ['trial','Сходить на пробный урок'],['signup','Записаться на курсы'],['test','Пройти тест на уровень'],
+  ['week','Отходить первую неделю занятий'],['talk','Набрать 10 часов разговорной практики']
+];
+const LEVELS = ['A1','A2','B1','B2','C1','C2'];
+const ORT_SECTIONS = ['Математика','Аналогии','Чтение','Грамматика'];
+const SUD = { easy:{n:'Лёгкий',rm:36,r:10}, medium:{n:'Средний',rm:46,r:20}, hard:{n:'Сложный',rm:52,r:35}, expert:{n:'Эксперт',rm:57,r:60} };
+
+const THEMES = [
+  {id:'violet',n:'Аметист',p:0,a:'#8b5cf6',b:'#6366f1'},{id:'emerald',n:'Изумруд',p:100,a:'#10b981',b:'#0d9488'},
+  {id:'amber',n:'Янтарь',p:100,a:'#f59e0b',b:'#ea580c'},{id:'rose',n:'Роза',p:120,a:'#f43f5e',b:'#db2777'},
+  {id:'cyan',n:'Лёд',p:120,a:'#22d3ee',b:'#3b82f6'},{id:'lime',n:'Лайм',p:150,a:'#a3e635',b:'#16a34a',on:'#111'},
+  {id:'gold',n:'Золото',p:300,a:'#facc15',b:'#d97706',on:'#111'},{id:'mono',n:'Графит',p:80,a:'#e4e4e7',b:'#a1a1aa',on:'#111'}
+];
+const PETS = [
+  {id:'cat',e:'🐱',n:'Котик',p:150},{id:'dog',e:'🐶',n:'Пёсик',p:150},{id:'owl',e:'🦉',n:'Сова',p:200},
+  {id:'fox',e:'🦊',n:'Лис',p:220},{id:'panda',e:'🐼',n:'Панда',p:300},{id:'dragon',e:'🐲',n:'Дракон',p:500}
+];
+const ACCS = [
+  {id:'bow',e:'🎀',n:'Бантик',s:'head',p:50},{id:'cap',e:'🧢',n:'Кепка',s:'head',p:60},{id:'tophat',e:'🎩',n:'Цилиндр',s:'head',p:90},
+  {id:'crown',e:'👑',n:'Корона',s:'head',p:250},{id:'glasses',e:'🕶️',n:'Очки',s:'face',p:70},
+  {id:'scarf',e:'🧣',n:'Шарф',s:'neck',p:60},{id:'medal',e:'🏅',n:'Медаль',s:'neck',p:120}
+];
+const SLOT_N = {head:'Голова',face:'Лицо',neck:'Шея'};
+
+const MODS = [
+  {id:'reading',t:'Чтение книг',i:'book-open',h:'#38bdf8'},
+  {id:'skate',t:'Скейт с нуля',i:'skate',h:'#fb923c'},
+  {id:'gym',t:'Поход в зал',i:'dumbbell',h:'#f87171'},
+  {id:'ort',t:'Сделать ОРТ',i:'target',h:'#818cf8'},
+  {id:'english',t:'Английский',i:'languages',h:'#34d399'},
+  {id:'sudoku',t:'Судоку',i:'grid-3x3',h:'#fbbf24'}
+];
+const MOD = Object.fromEntries(MODS.map(m => [m.id, m]));
+
+function defaultState(){
+  const subjects = {}; SUBJECTS.forEach(s => subjects[s] = {grades:[], hw:[]});
+  return {
+    v:1, updatedAt:0, coins:50,
+    profile:{name:'Игрок', avatar:'🧑'},
+    stats:{earned:0},
+    books:[], readGoal:200, readLog:{},
+    skate:{skills:{}, sessions:{}},
+    gym:{workouts:{}, startWeight:'', curWeight:'', startBench:'', curBench:''},
+    ort:{days:{}, exam:''},
+    eng:{steps:{}, level:'A1', practice:{}},
+    sudoku:{solved:{easy:0,medium:0,hard:0,expert:0}, log:{}, hist:[], cur:null},
+    school:subjects,
+    quests:{done:{}, weekly:{}},
+    ach:{},
+    shop:{themes:['violet'], theme:'violet', pets:[], pet:null, petName:'', accs:[], eq:{head:null,face:null,neck:null}}
+  };
+}
+function migrate(s){
+  const d = defaultState();
+  const out = Object.assign(d, s || {});
+  for (const k of ['profile','stats','skate','gym','ort','eng','sudoku','quests','shop']) out[k] = Object.assign(defaultState()[k], (s||{})[k] || {});
+  out.shop.eq = Object.assign({head:null,face:null,neck:null}, out.shop.eq || {});
+  out.sudoku.solved = Object.assign({easy:0,medium:0,hard:0,expert:0}, out.sudoku.solved || {});
+  SUBJECTS.forEach(n => { if (!out.school[n]) out.school[n] = {grades:[], hw:[]}; });
+  return out;
+}
+
+/* ============ persistence ============ */
+const LS = 'lifequest.v1';
+let state = (() => { try { return migrate(JSON.parse(localStorage.getItem(LS))); } catch { return defaultState(); } })();
+let dbRef = null, sync = 'local', pushT = null;
+function persist(){
+  state.updatedAt = Date.now();
+  try { localStorage.setItem(LS, JSON.stringify(state)); } catch {}
+  clearTimeout(pushT); pushT = setTimeout(pushRemote, 700);
+}
+async function pushRemote(){
+  if (!dbRef) return;
+  try { await dbRef.set(JSON.parse(JSON.stringify(state))); sync = 'cloud'; } catch (e) { sync = 'error'; }
+  paintSync();
+}
+const snapData = s => {
+  if (!s) return null;
+  if (typeof s.data === 'function') return s.exists === false ? null : s.data();
+  if (s.exists === false) return null;
+  if (s.data && typeof s.data === 'object') return s.data;
+  return s;
+};
+/* ---- Google sign-in (Firebase). Fill in FIREBASE_CONFIG — see "Настройка" in the profile ---- */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDF0TVmRocwnjSPnUId_g3eEP028IkLMFE",
+  authDomain: "ulaa-4a518.firebaseapp.com",
+  projectId: "ulaa-4a518",
+  storageBucket: "ulaa-4a518.firebasestorage.app",
+  messagingSenderId: "589256282042",
+  appId: "1:589256282042:web:81c8eb8f21105ee5991783"
+};
+const FB_ON = !!(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId);
+let gUser = null, fbAuth = null;
+const loadScript = src => new Promise((res, rej) => { const el = document.createElement('script'); el.src = src; el.onload = res; el.onerror = rej; document.head.appendChild(el); });
+async function attach(ref){
+  try {
+    const remote = snapData(await Promise.race([ref.get(), new Promise((_, j) => setTimeout(() => j('timeout'), 10000))]));
+    dbRef = ref;
+    if (remote && remote.v && (remote.updatedAt || 0) > (state.updatedAt || 0)) {
+      state = migrate(remote);
+      try { localStorage.setItem(LS, JSON.stringify(state)); } catch {}
+      applyTheme(); render();
+    } else if (state.updatedAt) { await pushRemote(); }
+    sync = 'cloud';
+  } catch (e) { sync = 'local'; }
+  paintSync();
+}
+async function initGoogle(){
+  try {
+    const base = 'https://www.gstatic.com/firebasejs/10.12.2/';
+    await loadScript(base + 'firebase-app-compat.js');
+    await Promise.all([loadScript(base + 'firebase-auth-compat.js'), loadScript(base + 'firebase-firestore-compat.js')]);
+    firebase.initializeApp(FIREBASE_CONFIG);
+    fbAuth = firebase.auth(); const db = firebase.firestore();
+    fbAuth.getRedirectResult().catch(e => toast('Не удалось войти: ' + esc(e.code || 'ошибка')));
+    fbAuth.onAuthStateChanged(async u => {
+      gUser = u;
+      if (!u) { dbRef = null; sync = 'local'; paintSync(); return; }
+      let last = null; try { last = localStorage.getItem('lifequest.uid'); localStorage.setItem('lifequest.uid', u.uid); } catch {}
+      if (last && last !== u.uid) state = defaultState();      /* другой аккаунт на этом устройстве */
+      await attach(db.collection('users').doc(u.uid));
+      if (state.profile.name === 'Игрок' && u.displayName) { state.profile.name = u.displayName.split(' ')[0].slice(0, 24); persist(); render(); }
+      toast('☁️ Вход выполнен — прогресс синхронизируется');
+    });
+  } catch (e) { sync = 'local'; paintSync(); }
+}
+/* ---- fallback: аккаунт Claude (когда сайт открыт внутри Claude) ---- */
+async function initCloud(){
+  for (let i = 0; i < 20 && !(window.claude && window.claude.use); i++) await new Promise(r => setTimeout(r, 250));
+  if (!(window.claude && window.claude.use)) return;
+  try {
+    const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
+    if (!db || !user) return;
+    const id = await user.id();
+    if (!id) return;
+    await attach(db.collection('data/users/' + id).doc('state'));
+  } catch (e) { sync = 'local'; paintSync(); }
+}
+function paintSync(){
+  const d = $('#syncDot'); if (!d) return;
+  d.className = 'absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-[#09090b] ' + (sync === 'cloud' ? 'bg-emerald-400' : sync === 'error' ? 'bg-red-400' : 'bg-zinc-600');
+}
+
+/* ============ coins / level ============ */
+const levelOf = e => Math.floor(Math.sqrt((e || 0) / 40)) + 1;
+function earn(n, why){
+  const before = levelOf(state.stats.earned);
+  state.coins += n; state.stats.earned += n;
+  toast(`<span class="text-amber-300 font-bold">+${n}</span> 🪙 ${esc(why)}`);
+  const after = levelOf(state.stats.earned);
+  if (after > before) setTimeout(() => toast(`✨ Новый уровень: <b>${after}</b>!`), 500);
+  persist();
+}
+function spend(n){
+  if (state.coins < n) { toast(`Не хватает ${n - state.coins} 🪙`); return false; }
+  state.coins -= n; persist(); return true;
+}
+
+/* ============ progress ============ */
+const activeBook = () => state.books.find(b => b.read < b.total) || null;
+const monthRead = () => monthSum(state.readLog);
+const skillsDone = () => SKATE.filter(([id]) => state.skate.skills[id]).length;
+const ortWeek = () => weekDays().slice(0, 5).filter(k => state.ort.days[k]).length;
+const P = {
+  reading(){ const b = activeBook(); return b ? b.read / b.total : monthRead() / state.readGoal; },
+  skate(){ return skillsDone() / SKATE.length; },
+  gym(){ const g = state.gym;
+    const mass = g.startWeight !== '' && g.curWeight !== '' ? (num(g.curWeight) - num(g.startWeight)) / 3 : 0;
+    const bench = g.curBench !== '' ? num(g.curBench) / 80 : 0;
+    return clamp(Math.max(mass, bench)); },
+  ort(){ return ortWeek() / 5; },
+  english(){ return ENG.filter(([id]) => state.eng.steps[id]).length / ENG.length; },
+  sudoku(){ return Object.values(state.sudoku.solved).filter(v => v > 0).length / 4; }
+};
+function ortStreak(){
+  let k = today(), n = 0;
+  if (!state.ort.days[k]) k = addDays(k, -1);
+  for (let i = 0; i < 400; i++, k = addDays(k, -1)) {
+    if (isWeekend(k)) continue;
+    if (state.ort.days[k]) n++; else break;
+  }
+  return n;
+}
+function status(id){
+  const s = state;
+  switch (id) {
+    case 'reading': { const b = activeBook(); return b ? `${b.title}: ${b.read}/${b.total} стр.` : `План: ${monthRead()}/${s.readGoal} стр.`; }
+    case 'skate': return `${skillsDone()}/${SKATE.length} навыков освоено`;
+    case 'gym': return `Неделя: ${weekCount(s.gym.workouts)}/4 тренировки`;
+    case 'ort': return isWeekend(today()) && !s.ort.days[today()] ? `Отпуск 🌴 · неделя ${ortWeek()}/5` : `${s.ort.days[today()] ? 'Сегодня ✓' : 'Сегодня не отмечено'} · ${ortWeek()}/5`;
+    case 'english': return `Уровень ${s.eng.level} · ${ENG.filter(([i]) => s.eng.steps[i]).length}/${ENG.length} шагов`;
+    case 'sudoku': return `Решено: ${Object.values(s.sudoku.solved).reduce((a, b) => a + b, 0)}`;
+  }
+}
+const allGrades = () => SUBJECTS.flatMap(n => state.school[n].grades);
+const avg = arr => arr.length ? arr.reduce((a, g) => a + g.v, 0) / arr.length : 0;
+const weekFives = () => { const w = new Set(weekDays()); return allGrades().filter(g => g.v === 5 && w.has(g.d)).length; };
+const weekHwDone = () => { const w = new Set(weekDays()); return SUBJECTS.reduce((a, n) => a + state.school[n].hw.filter(h => h.done && w.has(h.doneAt)).length, 0); };
+const hwPending = () => SUBJECTS.reduce((a, n) => a + state.school[n].hw.filter(h => !h.done).length, 0);
+
+/* ============ quests ============ */
+function rng(seed){ let h = 1779033703 ^ seed.length; for (let i = 0; i < seed.length; i++) { h = Math.imul(h ^ seed.charCodeAt(i), 3432918353); h = h << 13 | h >>> 19; }
+  return () => { h = Math.imul(h ^ h >>> 16, 2246822507); h = Math.imul(h ^ h >>> 13, 3266489909); return ((h ^= h >>> 16) >>> 0) / 4294967296; }; }
+const QPOOL = {
+  reading:[['Прочитай 20 страниц',15],['Прочитай 10 страниц перед сном',10],['Прочитай одну главу книги',15],['Обнови прогресс по своей книге',5]],
+  skate:[['Покатайся на скейте 20 минут',15],['Отработай торможение 10 минут',15],['Попробуй следующий навык из списка',20],['Сделай 10 кругов по площадке',15]],
+  gym:[['Сходи на тренировку в зал',25],['Сделай 3 подхода жима лёжа',15],['Выпей 2 литра воды',10],['Растяжка 10 минут после нагрузки',10]],
+  ort:[['Реши 20 задач по математике ОРТ',20],['Аналогии: 15 заданий',15],['Чтение и понимание: разбери 1 текст',15],['Грамматика: 20 вопросов',15],['Пробный мини-тест ОРТ на 30 минут',25]],
+  english:[['15 минут разговорной практики',15],['Выучи 10 новых английских слов',10],['Посмотри 1 видео на английском без субтитров',15],['Напиши в 2 школы английского и узнай цены',20]],
+  sudoku:[['Реши судоку лёгкого уровня',10],['Реши судоку среднего уровня',15],['Реши судоку без ошибок',20]],
+  school:[['Сделай всё домашнее задание на завтра',20],['Повтори тему по предмету: {s}',10],['Подготовься к уроку: {s}',10],['Перепиши конспект по предмету: {s}',10]]
+};
+const QICON = {reading:'book-open',skate:'skate',gym:'dumbbell',ort:'target',english:'languages',sudoku:'grid-3x3',school:'graduation-cap'};
+const QHUE = {reading:'#38bdf8',skate:'#fb923c',gym:'#f87171',ort:'#818cf8',english:'#34d399',sudoku:'#fbbf24',school:'#c084fc'};
+function dailyQuests(k = today()){
+  const r = rng('q' + k);
+  let cats = Object.keys(QPOOL).filter(c => !(c === 'ort' && isWeekend(k)));
+  cats = cats.map(c => [c, r()]).sort((a, b) => a[1] - b[1]).map(x => x[0]).slice(0, 5);
+  if (!isWeekend(k) && !cats.includes('ort')) cats[4] = 'ort';
+  return cats.map(c => { const pool = QPOOL[c]; const i = Math.floor(r() * pool.length);
+    const subj = SUBJECTS[Math.floor(r() * SUBJECTS.length)];
+    return {id:`${k}:${c}:${i}`, cat:c, t:pool[i][0].replace('{s}', subj), r:pool[i][1]}; });
+}
+const qDone = (q, k = today()) => !!state.quests.done[k]?.[q.id];
+const weekQuests = () => weekDays().reduce((a, k) => a + Object.keys(state.quests.done[k] || {}).length, 0);
+const WQ = [
+  {id:'daily10',t:'Выполни 10 ежедневных квестов',g:10,v:() => weekQuests(),r:70,i:'scroll-text'},
+  {id:'gym3',t:'3 тренировки в зале',g:3,v:() => weekCount(state.gym.workouts),r:40,i:'dumbbell'},
+  {id:'read70',t:'Прочитай 70 страниц',g:70,u:'стр.',v:() => weekSum(state.readLog),r:40,i:'book-open'},
+  {id:'skate60',t:'Откатай 60 минут на скейте',g:60,u:'мин',v:() => weekSum(state.skate.sessions),r:60,i:'skate'},
+  {id:'eng45',t:'45 минут разговорного английского',g:45,u:'мин',v:() => weekSum(state.eng.practice),r:50,i:'languages'},
+  {id:'hw5',t:'Сдай 5 домашних заданий',g:5,v:() => weekHwDone(),r:50,i:'graduation-cap'}
+];
+
+/* ============ achievements ============ */
+const sudMonth = lvl => state.sudoku.hist.filter(h => h.d.startsWith(monthKey()) && (!lvl || h.l === lvl)).length;
+const skillsMonth = () => Object.values(state.skate.skills).filter(d => typeof d === 'string' && d.startsWith(monthKey())).length;
+const ACH = [
+  {id:'w-gym',per:'w',i:'dumbbell',t:'Железная неделя',d:'4 тренировки в зале за неделю',g:4,v:() => weekCount(state.gym.workouts),r:80},
+  {id:'w-ort',per:'w',i:'target',t:'Без пропусков',d:'Подготовка к ОРТ все 5 будних дней',g:5,v:() => ortWeek(),r:80},
+  {id:'w-read',per:'w',i:'book-open',t:'Книжный червь',d:'100 страниц за неделю',g:100,v:() => weekSum(state.readLog),r:60},
+  {id:'w-sud',per:'w',i:'grid-3x3',t:'Логик',d:'3 судоку за неделю',g:3,v:() => weekSum(state.sudoku.log),r:50},
+  {id:'w-q',per:'w',i:'scroll-text',t:'Квестоман',d:'15 ежедневных квестов за неделю',g:15,v:() => weekQuests(),r:100},
+  {id:'w-five',per:'w',i:'graduation-cap',t:'Отличник недели',d:'3 пятёрки за неделю',g:3,v:() => weekFives(),r:60},
+  {id:'m-mass',per:'m',i:'trending-up',t:'+3 кг массы',d:'Набрать 3 кг за месяц',g:3,v:() => state.gym.startWeight !== '' && state.gym.curWeight !== '' ? Math.max(0, +(num(state.gym.curWeight) - num(state.gym.startWeight)).toFixed(1)) : 0,r:200},
+  {id:'m-bench',per:'m',i:'dumbbell',t:'Жим 80',d:'Пожать 80 кг лёжа',g:80,v:() => num(state.gym.curBench),r:200},
+  {id:'m-gym',per:'m',i:'flame',t:'Режим',d:'16 тренировок за месяц',g:16,v:() => monthCount(state.gym.workouts),r:150},
+  {id:'m-read',per:'m',i:'library',t:'План по чтению',d:'Выполнить месячный план по страницам',g:() => state.readGoal,v:() => monthRead(),r:150},
+  {id:'m-ort',per:'m',i:'calendar-check',t:'ОРТ-марафон',d:'20 дней подготовки за месяц',g:20,v:() => monthCount(state.ort.days),r:200},
+  {id:'m-skate',per:'m',i:'skate',t:'Прогресс на доске',d:'Освоить 3 новых навыка скейта',g:3,v:() => skillsMonth(),r:120},
+  {id:'m-sud',per:'m',i:'brain',t:'Мастер судоку',d:'Решить судоку уровня «Эксперт»',g:1,v:() => sudMonth('expert'),r:150}
+];
+const achKey = a => a.id + ':' + (a.per === 'w' ? weekStart() : monthKey());
+const achGoal = a => typeof a.g === 'function' ? a.g() : a.g;
+
+/* ============ UI bits ============ */
+const SKATE_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5c0 1 .8 1.8 1.8 1.8h14.4c1 0 1.8-.8 1.8-1.8"/><path d="M2 9.5l1 1M22 9.5l-1 1"/><circle cx="7" cy="16" r="1.8"/><circle cx="17" cy="16" r="1.8"/><path d="M7 12.3v1.9M17 12.3v1.9"/></svg>`;
+const icon = (n, cls = '') => n === 'skate' ? `<span class="inline-grid ${cls}">${SKATE_SVG}</span>` : `<i data-lucide="${n}" class="${cls}"></i>`;
+function ring(p, s = 56, w = 5){
+  const r = (s - w) / 2, c = 2 * Math.PI * r;
+  return `<svg width="${s}" height="${s}" class="-rotate-90 block"><circle cx="${s/2}" cy="${s/2}" r="${r}" style="stroke:var(--track)" stroke-width="${w}" fill="none"/><circle class="ring-p" cx="${s/2}" cy="${s/2}" r="${r}" stroke="var(--acc)" stroke-width="${w}" stroke-linecap="round" fill="none" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - clamp(p))}"/></svg>`;
+}
+const ringBox = (p, s = 56, w = 5, fs = 'text-xs') => `<div class="relative shrink-0">${ring(p, s, w)}<span class="absolute inset-0 grid place-items-center ${fs} font-bold tabular-nums">${pct(p)}%</span></div>`;
+const bar = (p, cls = 'mt-3') => `<div class="bar ${cls}"><i style="width:${pct(p)}%"></i></div>`;
+const cbx = on => `<span class="cb ${on ? 'on' : ''}">${on ? '<i data-lucide="check"></i>' : ''}</span>`;
+function petHTML(size = 64, bob = true){
+  const p = PETS.find(x => x.id === state.shop.pet); if (!p) return '';
+  const eq = state.shop.eq;
+  const a = s => { const it = ACCS.find(x => x.id === eq[s]); return it ? `<span class="acc ${s}">${it.e}</span>` : ''; };
+  return `<span class="pet ${bob ? 'bob' : ''}" style="font-size:${size}px">${p.e}${a('head')}${a('face')}${a('neck')}</span>`;
+}
+function pageHead(id, sub){
+  const m = MOD[id];
+  return `<div class="flex items-center gap-3 mb-5">
+    <a href="#home" class="btn-ghost w-10 h-10 grid place-items-center rounded-xl shrink-0" aria-label="Назад"><i data-lucide="arrow-left" class="w-5 h-5"></i></a>
+    <div class="ico" style="--h:${m.h}">${icon(m.i)}</div>
+    <div class="flex-1 min-w-0"><h1 class="text-xl font-bold truncate">${m.t}</h1><p class="text-xs text-zinc-500 truncate">${sub}</p></div>
+    ${ringBox(P[id](), 58, 6)}
+  </div>`;
+}
+const sectionTitle = (t, extra = '') => `<div class="flex items-center justify-between mt-8 mb-3"><h2 class="text-sm font-bold uppercase tracking-wider text-zinc-400">${t}</h2>${extra}</div>`;
+function weekStrip(obj, opts = {}){
+  const t = today();
+  return `<div class="grid grid-cols-7 gap-1.5">${weekDays().map(k => {
+    const d = fromKey(k), on = !!obj[k], fut = k > t, we = isWeekend(k);
+    const vac = opts.vacation && we && !on;
+    return `<button ${opts.action && !fut ? `data-a="${opts.action}" data-k="${k}"` : 'disabled'} class="rounded-xl py-2.5 flex flex-col items-center gap-1 border transition ${on ? 'acc-bg border-transparent' : 'bg-white/[.03] border-white/5'} ${k === t && !on ? 'acc-border' : ''} ${fut ? 'opacity-40' : ''}">
+      <span class="text-[10px] font-semibold ${on ? '' : 'text-zinc-500'}">${DOW_S[d.getUTCDay()]}</span>
+      <span class="text-sm font-bold">${vac ? '🌴' : on ? '✓' : d.getUTCDate()}</span></button>`; }).join('')}</div>`;
+}
+
+/* ============ views ============ */
+function greet(){ const h = bNow().getUTCHours(); return h >= 5 && h < 12 ? 'Доброе утро' : h < 18 && h >= 12 ? 'Добрый день' : h >= 18 && h < 23 ? 'Добрый вечер' : 'Доброй ночи'; }
+function petMood(){
+  const q = dailyQuests(), d = q.filter(x => qDone(x)).length;
+  if (d === q.length) return 'Все квесты на сегодня закрыты! Ты легенда 🏆';
+  if (d === 0) return 'Давай начнём день с первого квеста!';
+  return `Уже ${d} из ${q.length} квестов. Ещё немного!`;
+}
+const V = {};
+V.home = () => {
+  const q = dailyQuests(), done = q.filter(x => qDone(x)).length;
+  const e = state.stats.earned, L = levelOf(e), lo = 40 * (L - 1) ** 2, hi = 40 * L ** 2;
+  const a = avg(allGrades());
+  const pet = PETS.find(x => x.id === state.shop.pet);
+  return `<div class="fade">
+  <section class="grid md:grid-cols-[1fr_300px] gap-3">
+    <div class="card p-5 sm:p-6 relative overflow-hidden">
+      <div class="glow"></div>
+      <p class="text-sm text-zinc-400">${greet()},</p>
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight mt-0.5">${esc(state.profile.name)} <span class="text-xl">${esc(state.profile.avatar)}</span></h1>
+      <div class="mt-5 flex items-center gap-3">
+        <span class="acc-bg px-2.5 py-1 rounded-lg text-xs font-extrabold">LVL ${L}</span>
+        <div class="flex-1">${bar((e - lo) / (hi - lo), '')}</div>
+        <span class="text-xs text-zinc-500 tabular-nums">${e - lo}/${hi - lo} XP</span>
+      </div>
+      <div class="mt-5 grid grid-cols-3 gap-2">
+        <a href="#quests" class="rounded-2xl bg-white/[.03] border border-white/5 p-3"><div class="label">Квесты</div><div class="text-lg font-bold mt-0.5">${done}<span class="text-zinc-500">/${q.length}</span></div></a>
+        <a href="#ort" class="rounded-2xl bg-white/[.03] border border-white/5 p-3"><div class="label">Серия ОРТ</div><div class="text-lg font-bold mt-0.5">${ortStreak()} 🔥</div></a>
+        <a href="#study" class="rounded-2xl bg-white/[.03] border border-white/5 p-3"><div class="label">Ср. балл</div><div class="text-lg font-bold mt-0.5">${a ? a.toFixed(2) : '—'}</div></a>
+      </div>
+    </div>
+    <div class="card p-5 flex flex-col items-center justify-center text-center relative overflow-hidden min-h-[200px]">
+      ${pet ? `<div class="text-xs text-zinc-300 bg-white/[.06] rounded-2xl rounded-bl-sm px-3 py-2 mb-4 max-w-[240px]">${petMood()}</div>
+        <div class="pt-4">${petHTML(78)}</div>
+        <div class="mt-3 font-bold">${esc(state.shop.petName || pet.n)}</div>
+        <a href="#shop" data-tab="pets" class="text-xs acc-text mt-1">Гардероб</a>`
+      : `<div class="w-16 h-16 rounded-2xl bg-white/[.04] grid place-items-center text-3xl">🥚</div>
+        <div class="mt-3 font-bold">Здесь будет питомец</div>
+        <p class="text-xs text-zinc-500 mt-1 max-w-[220px]">Копи коины и купи компаньона в магазине — он будет жить в главном меню.</p>
+        <a href="#shop" class="btn mt-4 text-sm">В магазин</a>`}
+    </div>
+  </section>
+  ${sectionTitle('Главное меню')}
+  <section class="grid grid-cols-2 lg:grid-cols-3 gap-3">
+    ${MODS.map(m => `<a href="#${m.id}" class="card mod p-4 sm:p-5 flex flex-col gap-4">
+      <div class="flex items-start justify-between gap-2"><div class="ico" style="--h:${m.h}">${icon(m.i)}</div>${ringBox(P[m.id]())}</div>
+      <div class="min-w-0"><div class="font-bold leading-tight">${m.t}</div><div class="text-xs text-zinc-500 mt-1 truncate">${esc(status(m.id))}</div></div>
+    </a>`).join('')}
+  </section>
+  ${sectionTitle('Квесты на сегодня', `<a href="#quests" class="text-xs acc-text font-semibold">Все квесты →</a>`)}
+  <section class="card divide-y divide-white/5">${q.slice(0, 3).map(questRow).join('')}</section>
+  </div>`;
+};
+function questRow(x){
+  const d = qDone(x);
+  return `<div class="flex items-center gap-3 p-4 ${d ? 'opacity-60' : ''}">
+    <div class="ico !w-9 !h-9 !rounded-xl" style="--h:${QHUE[x.cat]}">${icon(QICON[x.cat])}</div>
+    <div class="flex-1 min-w-0"><div class="text-sm font-semibold ${d ? 'line-through' : ''}">${esc(x.t)}</div><div class="text-xs text-amber-300/80 mt-0.5">+${x.r} 🪙</div></div>
+    ${d ? `<span class="text-xs font-bold acc-text flex items-center gap-1"><i data-lucide="check" class="w-4 h-4"></i>Готово</span>` : `<button data-a="qDone" data-id="${x.id}" class="btn-soft !py-2 text-xs">Выполнил</button>`}
+  </div>`;
+}
+
+/* reading */
+V.reading = () => {
+  const m = monthRead(), g = state.readGoal, left = Math.max(0, g - m), dl = daysLeftInMonth();
+  const mn = MONTHS_N[bNow().getUTCMonth()];
+  return `<div class="fade">${pageHead('reading', 'Калькулятор прогресса и план чтения')}
+  <div class="card p-5">
+    <div class="flex flex-wrap justify-between items-end gap-3">
+      <div><div class="label">План на ${mn}</div><div class="text-3xl font-extrabold mt-1 tabular-nums">${m}<span class="text-zinc-500 text-lg font-semibold"> / ${g} стр.</span></div></div>
+      <form data-f="readGoal" class="flex gap-2 items-center"><span class="label">Цель</span><input name="g" type="number" min="1" value="${g}" class="inp w-24"><button class="btn-soft">OK</button></form>
+    </div>
+    ${bar(m / g)}
+    <p class="text-xs text-zinc-500 mt-2">${left > 0 ? `Осталось ${left} стр. — примерно ${Math.ceil(left / dl)} стр. в день до конца месяца` : 'План на месяц выполнен 🎉'}</p>
+    <div class="mt-4 flex gap-2 flex-wrap items-center"><span class="label mr-1">Прочитал сегодня:</span>${[5,10,20,30,50].map(n => `<button data-a="readAdd" data-n="${n}" class="chip">+${n}</button>`).join('')}</div>
+    <p class="text-[11px] text-zinc-600 mt-2">Страницы добавятся к плану и к текущей книге.</p>
+  </div>
+
+  ${sectionTitle('Калькулятор книги')}
+  <div class="card p-5">
+    <form data-f="addBook" class="grid grid-cols-2 sm:grid-cols-[1fr_120px_120px_auto] gap-2">
+      <input name="title" placeholder="Название книги" class="inp col-span-2 sm:col-span-1" required maxlength="80">
+      <input name="total" type="number" min="1" placeholder="Всего страниц" class="inp" required>
+      <input name="read" type="number" min="0" placeholder="Прочитано" class="inp">
+      <button class="btn col-span-2 sm:col-span-1">Добавить</button>
+    </form>
+    <div id="calcOut" class="mt-3 text-sm text-zinc-400">Введи общее число страниц и сколько уже прочитано — процент посчитается сам.</div>
+  </div>
+
+  ${state.books.length ? sectionTitle('Мои книги') + `<div class="grid sm:grid-cols-2 gap-3">${state.books.map(b => {
+    const p = b.read / b.total, done = b.read >= b.total;
+    return `<div class="card p-5">
+      <div class="flex items-start gap-3">
+        <div class="flex-1 min-w-0"><div class="font-bold truncate">${esc(b.title)}</div><div class="text-xs text-zinc-500 mt-1">${b.read} из ${b.total} стр. · ${done ? 'дочитана ✓' : `осталось ${b.total - b.read}`}</div></div>
+        <div class="text-2xl font-extrabold acc-text tabular-nums">${pct(p)}%</div>
+      </div>
+      ${bar(p)}
+      <div class="flex gap-2 mt-4">
+        <form data-f="bookRead" data-id="${b.id}" class="flex gap-2 flex-1"><input name="read" type="number" min="0" max="${b.total}" value="${b.read}" class="inp flex-1 w-0"><button class="btn-soft">Сохранить</button></form>
+        <button data-a="delBook" data-id="${b.id}" class="btn-ghost w-10 rounded-xl grid place-items-center" aria-label="Удалить"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+      </div>
+    </div>`; }).join('')}</div>` : ''}
+  </div>`;
+};
+
+/* skate */
+V.skate = () => {
+  const total = Object.values(state.skate.sessions).reduce((a, b) => a + b, 0);
+  const recent = Object.entries(state.skate.sessions).sort((a, b) => b[0].localeCompare(a[0])).slice(0, 5);
+  return `<div class="fade">${pageHead('skate', 'Обучение с нуля: от стойки до олли')}
+  <div class="card p-5">
+    <div class="flex justify-between items-end"><div><div class="label">Освоено навыков</div><div class="text-3xl font-extrabold mt-1">${skillsDone()}<span class="text-zinc-500 text-lg"> / ${SKATE.length}</span></div></div>
+    <div class="text-right"><div class="label">Всего на доске</div><div class="text-lg font-bold">${Math.floor(total / 60)} ч ${total % 60} мин</div></div></div>
+    ${bar(P.skate())}
+  </div>
+  ${sectionTitle('Дорожная карта')}
+  <div class="card divide-y divide-white/5">${SKATE.map(([id, t], i) => { const on = !!state.skate.skills[id];
+    return `<button data-a="skill" data-id="${id}" class="w-full flex items-center gap-3 p-4 text-left hover:bg-white/[.02]">
+      <span class="w-6 text-xs text-zinc-600 font-bold">${String(i + 1).padStart(2, '0')}</span>
+      <span class="flex-1 text-sm font-semibold ${on ? 'text-zinc-500 line-through' : ''}">${t}</span>${cbx(on)}</button>`; }).join('')}</div>
+  ${sectionTitle('Записать катание')}
+  <div class="card p-5">
+    <form data-f="skateLog" class="flex gap-2"><input name="m" type="number" min="1" max="600" placeholder="Минут на доске сегодня" class="inp flex-1" required><button class="btn">Записать</button></form>
+    ${recent.length ? `<div class="mt-4 space-y-2">${recent.map(([k, v]) => `<div class="flex justify-between text-sm"><span class="text-zinc-400">${fmtDay(k)}</span><span class="font-semibold">${v} мин</span></div>`).join('')}</div>` : ''}
+  </div></div>`;
+};
+
+/* gym */
+V.gym = () => {
+  const g = state.gym, w = weekCount(g.workouts);
+  const mass = g.startWeight !== '' && g.curWeight !== '' ? num(g.curWeight) - num(g.startWeight) : 0;
+  const bench = num(g.curBench);
+  return `<div class="fade">${pageHead('gym', '4 тренировки в неделю · цели на месяц')}
+  <div class="card p-5">
+    <div class="flex justify-between items-center mb-4"><div><div class="label">Эта неделя</div><div class="text-2xl font-extrabold mt-0.5">${w}<span class="text-zinc-500 text-base"> / 4 тренировки</span></div></div>
+    <div class="text-right"><div class="label">За месяц</div><div class="text-lg font-bold">${monthCount(g.workouts)}</div></div></div>
+    ${weekStrip(g.workouts, {action:'gymDay'})}
+    <p class="text-[11px] text-zinc-600 mt-3">Нажми на день, чтобы отметить тренировку.</p>
+  </div>
+  ${sectionTitle('Месячные достижения', `<span class="text-xs text-zinc-500">достаточно одной цели</span>`)}
+  <div class="grid sm:grid-cols-2 gap-3">
+    <div class="card p-5">
+      <div class="flex justify-between items-start"><div><div class="font-bold">Набрать 3 кг</div><div class="text-xs text-zinc-500 mt-0.5">${mass > 0 ? '+' : ''}${mass.toFixed(1)} кг из +3</div></div><div class="text-2xl font-extrabold acc-text">${pct(mass / 3)}%</div></div>
+      ${bar(mass / 3)}
+      <form data-f="gymMass" class="grid grid-cols-[1fr_1fr_auto] gap-2 mt-4">
+        <input name="s" type="number" step="0.1" placeholder="Старт, кг" value="${esc(g.startWeight)}" class="inp w-full">
+        <input name="c" type="number" step="0.1" placeholder="Сейчас, кг" value="${esc(g.curWeight)}" class="inp w-full">
+        <button class="btn-soft">OK</button>
+      </form>
+    </div>
+    <div class="card p-5">
+      <div class="flex justify-between items-start"><div><div class="font-bold">Жим лёжа 80 кг</div><div class="text-xs text-zinc-500 mt-0.5">${bench || 0} кг из 80</div></div><div class="text-2xl font-extrabold acc-text">${pct(bench / 80)}%</div></div>
+      ${bar(bench / 80)}
+      <form data-f="gymBench" class="grid grid-cols-[1fr_auto] gap-2 mt-4">
+        <input name="c" type="number" step="2.5" placeholder="Текущий рабочий вес, кг" value="${esc(g.curBench)}" class="inp w-full">
+        <button class="btn-soft">OK</button>
+      </form>
+    </div>
+  </div>
+  <button data-a="gymReset" class="btn-ghost text-xs mt-4 px-3 py-2 rounded-xl flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>Новый месяц: текущий вес → стартовый</button>
+  </div>`;
+};
+
+/* ORT */
+let ortSel = new Set(['Математика']);
+V.ort = () => {
+  const t = today(), td = state.ort.days[t], we = isWeekend(t);
+  const totalMin = Object.values(state.ort.days).reduce((a, d) => a + (d.m || 0), 0);
+  let left = '';
+  if (state.ort.exam) { const n = Math.round((fromKey(state.ort.exam) - fromKey(t)) / 864e5); left = n >= 0 ? `${n} ${plural(n, 'день', 'дня', 'дней')}` : 'прошёл'; }
+  const logForm = `<form data-f="ortLog" class="mt-4 space-y-3">
+      <div class="flex flex-wrap gap-2">${ORT_SECTIONS.map(s => `<button type="button" data-a="ortSec" data-s="${s}" class="chip ${ortSel.has(s) ? 'on' : ''}">${s}</button>`).join('')}</div>
+      <div class="flex gap-2"><input name="m" type="number" min="5" max="600" value="60" class="inp w-28"><span class="self-center text-sm text-zinc-500 flex-1">минут</span><button class="btn">Отметить день</button></div></form>`;
+  return `<div class="fade">${pageHead('ort', 'Ежедневная подготовка · выходные — отпуск')}
+  <div class="card p-5 relative overflow-hidden">
+    <div class="label">Сегодня, ${DOW_L[dowOf(t)]}</div>
+    ${td ? `<div class="flex items-center gap-3 mt-2"><div class="w-11 h-11 rounded-xl acc-bg grid place-items-center"><i data-lucide="check" class="w-5 h-5"></i></div>
+        <div class="flex-1"><div class="font-bold">Подготовка засчитана</div><div class="text-xs text-zinc-500">${td.m} мин · ${(td.s || []).join(', ') || '—'}</div></div>
+        <button data-a="ortUndo" class="btn-ghost text-xs px-3 py-2 rounded-xl">Отменить</button></div>`
+      : we ? `<div class="flex items-center gap-3 mt-2"><div class="text-3xl">🌴</div><div><div class="font-bold">Выходной — у тебя отпуск</div><div class="text-xs text-zinc-500">Серия не сгорит. Можно позаниматься по желанию.</div></div></div>
+        <details class="mt-3"><summary class="text-xs acc-text cursor-pointer font-semibold">Всё равно позаниматься</summary>${logForm}</details>`
+      : `<div class="font-bold mt-1">Отметь подготовку за сегодня</div>${logForm}`}
+  </div>
+  <div class="card p-5 mt-3">
+    <div class="flex justify-between items-center mb-4"><div class="font-bold">Неделя</div><div class="text-sm text-zinc-400">${ortWeek()}/5 будних дней</div></div>
+    ${weekStrip(state.ort.days, {vacation:true})}
+  </div>
+  <div class="grid grid-cols-3 gap-3 mt-3">
+    <div class="card p-4"><div class="label">Серия</div><div class="text-xl font-extrabold mt-1">${ortStreak()} 🔥</div></div>
+    <div class="card p-4"><div class="label">В этом месяце</div><div class="text-xl font-extrabold mt-1">${monthCount(state.ort.days)} дн.</div></div>
+    <div class="card p-4"><div class="label">Всего</div><div class="text-xl font-extrabold mt-1">${(totalMin / 60).toFixed(1)} ч</div></div>
+  </div>
+  <div class="card p-5 mt-3 flex flex-wrap items-center gap-3">
+    <div class="flex-1 min-w-[150px]"><div class="font-bold">Дата ОРТ</div><div class="text-xs text-zinc-500 mt-0.5">${state.ort.exam ? `До теста: ${left}` : 'Укажи дату, чтобы видеть обратный отсчёт'}</div></div>
+    <form data-f="ortExam" class="flex gap-2"><input name="d" type="date" value="${esc(state.ort.exam)}" class="inp"><button class="btn-soft">OK</button></form>
+  </div></div>`;
+};
+
+/* English */
+V.english = () => {
+  const tot = Object.values(state.eng.practice).reduce((a, b) => a + b, 0);
+  return `<div class="fade">${pageHead('english', 'Запись на курсы и разговорная практика')}
+  <div class="card p-5">
+    <div class="label mb-3">Мой уровень</div>
+    <div class="grid grid-cols-6 gap-2">${LEVELS.map(l => `<button data-a="engLevel" data-l="${l}" class="chip !rounded-xl !py-2.5 ${state.eng.level === l ? 'on' : ''}">${l}</button>`).join('')}</div>
+  </div>
+  ${sectionTitle('Шаги к цели')}
+  <div class="card divide-y divide-white/5">${ENG.map(([id, t]) => { const on = !!state.eng.steps[id];
+    return `<button data-a="engStep" data-id="${id}" class="w-full flex items-center gap-3 p-4 text-left hover:bg-white/[.02]"><span class="flex-1 text-sm font-semibold ${on ? 'text-zinc-500 line-through' : ''}">${t}</span>${cbx(on)}</button>`; }).join('')}</div>
+  ${sectionTitle('Разговорная практика')}
+  <div class="card p-5">
+    <div class="flex justify-between mb-3"><span class="label">Всего</span><span class="font-bold">${Math.floor(tot / 60)} ч ${tot % 60} мин · неделя ${weekSum(state.eng.practice)} мин</span></div>
+    ${bar(tot / 600, 'mb-4')}
+    <form data-f="engLog" class="flex gap-2"><input name="m" type="number" min="1" max="600" placeholder="Минут практики сегодня" class="inp flex-1" required><button class="btn">Записать</button></form>
+  </div></div>`;
+};
+
+/* Sudoku */
+let sSel = -1, sGen = null;
+function sOk(g, i, n){ const r = i / 9 | 0, c = i % 9, br = r - r % 3, bc = c - c % 3;
+  for (let k = 0; k < 9; k++) { if (g[r * 9 + k] === n || g[k * 9 + c] === n) return false; if (g[(br + (k / 3 | 0)) * 9 + bc + k % 3] === n) return false; } return true; }
+const shuf = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+function sFill(g){ const i = g.indexOf(0); if (i < 0) return true;
+  for (const n of shuf([1,2,3,4,5,6,7,8,9])) if (sOk(g, i, n)) { g[i] = n; if (sFill(g)) return true; g[i] = 0; } return false; }
+function sCount(g, lim){
+  let best = -1, bc = null;
+  for (let i = 0; i < 81; i++) if (!g[i]) { const c = []; for (let n = 1; n <= 9; n++) if (sOk(g, i, n)) c.push(n);
+    if (!c.length) return 0; if (!bc || c.length < bc.length) { best = i; bc = c; if (c.length === 1) break; } }
+  if (best < 0) return 1;
+  let t = 0; for (const n of bc) { g[best] = n; t += sCount(g, lim - t); if (t >= lim) break; } g[best] = 0; return t;
+}
+function sGenerate(level){
+  const sol = Array(81).fill(0); sFill(sol);
+  const puz = sol.slice(); let removed = 0; const target = SUD[level].rm, t0 = Date.now();
+  for (const i of shuf([...Array(81).keys()])) {
+    if (removed >= target || Date.now() - t0 > 2500) break;
+    const v = puz[i]; puz[i] = 0;
+    if (sCount(puz.slice(), 2) !== 1) puz[i] = v; else removed++;
+  }
+  return {l:level, puz, sol, cur:puz.slice(), err:0, hints:0};
+}
+V.sudoku = () => {
+  const s = state.sudoku, c = s.cur;
+  const levels = `<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">${Object.entries(SUD).map(([k, v]) => `<button data-a="sNew" data-l="${k}" class="card mod p-4 text-left ${c && c.l === k ? 'acc-border' : ''}">
+      <div class="font-bold">${v.n}</div><div class="text-xs text-zinc-500 mt-1">решено: ${s.solved[k]}</div><div class="text-xs text-amber-300/80 mt-2">+${v.r} 🪙</div></button>`).join('')}</div>`;
+  if (sGen) return `<div class="fade">${pageHead('sudoku', 'Головоломки от лёгких до экспертных')}<div class="card p-10 text-center text-zinc-400"><div class="animate-spin w-8 h-8 border-2 border-white/10 rounded-full mx-auto mb-3" style="border-top-color:var(--acc)"></div>Генерирую головоломку «${SUD[sGen].n}»…</div></div>`;
+  if (!c) return `<div class="fade">${pageHead('sudoku', 'Головоломки от лёгких до экспертных')}${sectionTitle('Выбери уровень')}${levels}
+    <p class="text-xs text-zinc-500 mt-4">Прогресс раздела — сколько уровней ты покорил хотя бы раз (каждый даёт 25%).</p></div>`;
+  const sv = sSel >= 0 ? c.cur[sSel] : 0, sr = sSel / 9 | 0, scl = sSel % 9;
+  const cells = c.cur.map((v, i) => {
+    const r = i / 9 | 0, cl = i % 9, given = c.puz[i] !== 0, bad = v && v !== c.sol[i];
+    const rel = sSel >= 0 && (r === sr || cl === scl || ((r / 3 | 0) === (sr / 3 | 0) && (cl / 3 | 0) === (scl / 3 | 0)));
+    const cls = ['sc', cl === 2 || cl === 5 ? 'br' : '', r === 2 || r === 5 ? 'bb' : '', given ? 'given' : v ? 'user' : '', bad ? 'bad' : '',
+      i === sSel ? 'sel' : sv && v === sv ? 'same' : rel ? 'rel' : ''].join(' ');
+    return `<div class="${cls}" data-a="sCell" data-i="${i}">${v || ''}</div>`;
+  }).join('');
+  const cnt = n => 9 - c.cur.filter((v, i) => v === n && v === c.sol[i]).length;
+  return `<div class="fade">${pageHead('sudoku', 'Головоломки от лёгких до экспертных')}
+  <div class="flex flex-col lg:flex-row gap-5 items-center lg:items-start">
+    <div class="w-full max-w-[440px]">
+      <div class="flex justify-between text-sm mb-3"><span class="font-bold">${SUD[c.l].n}</span><span class="text-zinc-400">Ошибки: <b class="${c.err ? 'text-red-400' : ''}">${c.err}</b> · Подсказки: ${c.hints}</span></div>
+      <div class="sgrid mx-auto">${cells}</div>
+    </div>
+    <div class="w-full max-w-[440px] lg:max-w-[300px]">
+      <div class="npad grid grid-cols-5 lg:grid-cols-3 gap-2">${[1,2,3,4,5,6,7,8,9].map(n => `<button data-a="sNum" data-n="${n}" ${cnt(n) <= 0 ? 'class="opacity-30"' : ''}>${n}<small>${Math.max(0, cnt(n))}</small></button>`).join('')}
+        <button data-a="sErase" aria-label="Стереть" class="grid place-items-center"><i data-lucide="eraser" class="w-5 h-5"></i></button></div>
+      <div class="grid grid-cols-2 gap-2 mt-3">
+        <button data-a="sHint" class="btn-soft flex items-center justify-center gap-2"><i data-lucide="lightbulb" class="w-4 h-4"></i>Подсказка −5🪙</button>
+        <button data-a="sQuit" class="btn-soft">Сменить уровень</button>
+      </div>
+      <p class="text-[11px] text-zinc-600 mt-3 hidden lg:block">Можно вводить цифры с клавиатуры, стрелки — перемещение.</p>
+    </div>
+  </div></div>`;
+};
+
+/* Study */
+let openSubj = null;
+V.study = () => {
+  const a = avg(allGrades());
+  const gc = v => v >= 4.5 ? 'text-emerald-400' : v >= 3.5 ? 'text-sky-400' : v >= 2.5 ? 'text-amber-400' : v ? 'text-red-400' : 'text-zinc-500';
+  const chipC = v => v === 5 ? 'bg-emerald-400/15 text-emerald-300' : v === 4 ? 'bg-sky-400/15 text-sky-300' : v === 3 ? 'bg-amber-400/15 text-amber-300' : 'bg-red-400/15 text-red-300';
+  return `<div class="fade">
+  <div class="flex items-center gap-3 mb-5"><div class="ico" style="--h:#c084fc"><i data-lucide="graduation-cap"></i></div><div><h1 class="text-xl font-bold">Учёба</h1><p class="text-xs text-zinc-500">Оценки и домашние задания по предметам</p></div></div>
+  <div class="grid grid-cols-3 gap-3">
+    <div class="card p-4"><div class="label">Средний балл</div><div class="text-2xl font-extrabold mt-1 ${gc(a)}">${a ? a.toFixed(2) : '—'}</div></div>
+    <div class="card p-4"><div class="label">Невыполненные ДЗ</div><div class="text-2xl font-extrabold mt-1">${hwPending()}</div></div>
+    <div class="card p-4"><div class="label">Пятёрки за неделю</div><div class="text-2xl font-extrabold mt-1">${weekFives()}</div></div>
+  </div>
+  ${sectionTitle('Предметы', `<span class="text-xs text-zinc-500">${SUBJECTS.length} предметов</span>`)}
+  <div class="grid md:grid-cols-2 gap-3 items-start">${SUBJECTS.map((n, si) => {
+    const s = state.school[n], av = avg(s.grades), pend = s.hw.filter(h => !h.done).length, open = openSubj === n;
+    return `<div class="card overflow-hidden ${open ? 'acc-border' : ''}">
+      <button data-a="subj" data-s="${si}" class="w-full p-4 flex items-center gap-3 text-left">
+        <div class="flex-1 min-w-0"><div class="font-bold truncate">${n}</div>
+          <div class="flex gap-1 mt-1.5 flex-wrap">${s.grades.length ? s.grades.slice(-8).map(g => `<span class="text-[11px] font-bold w-5 h-5 rounded-md grid place-items-center ${chipC(g.v)}">${g.v}</span>`).join('') : '<span class="text-xs text-zinc-600">нет оценок</span>'}</div></div>
+        ${pend ? `<span class="text-[11px] font-bold px-2 py-1 rounded-lg acc-soft">ДЗ: ${pend}</span>` : ''}
+        <div class="text-xl font-extrabold w-12 text-right ${gc(av)}">${av ? av.toFixed(1) : '—'}</div>
+        <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-500 transition ${open ? 'rotate-180' : ''}"></i>
+      </button>
+      ${open ? `<div class="px-4 pb-4 border-t border-white/5 pt-4">
+        <div class="label mb-2">Поставить оценку</div>
+        <div class="flex gap-2">${[5,4,3,2].map(v => `<button data-a="addGrade" data-s="${si}" data-v="${v}" class="flex-1 py-2.5 rounded-xl font-extrabold ${chipC(v)}">${v}</button>`).join('')}</div>
+        ${s.grades.length ? `<div class="label mt-4 mb-2">Все оценки (нажми, чтобы удалить)</div><div class="flex flex-wrap gap-1.5">${s.grades.map((g, gi) => `<button data-a="delGrade" data-s="${si}" data-i="${gi}" title="${fmtDay(g.d)}" class="text-xs font-bold w-7 h-7 rounded-lg ${chipC(g.v)} hover:ring-1 hover:ring-red-400">${g.v}</button>`).join('')}</div>` : ''}
+        <div class="label mt-5 mb-2">Домашние задания</div>
+        <form data-f="addHw" data-s="${si}" class="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_140px_auto] gap-2">
+          <input name="t" placeholder="Что задали?" class="inp col-span-2 sm:col-span-1" required maxlength="140">
+          <input name="d" type="date" value="${addDays(today(), 1)}" class="inp">
+          <button class="btn !px-3" aria-label="Добавить"><i data-lucide="plus" class="w-4 h-4"></i></button>
+        </form>
+        <div class="mt-3 space-y-1">${s.hw.length ? s.hw.slice().sort((x, y) => (x.done - y.done) || x.due.localeCompare(y.due)).map(h => {
+          const late = !h.done && h.due < today();
+          return `<div class="flex items-center gap-3 py-2">
+            <button data-a="hwToggle" data-s="${si}" data-id="${h.id}">${cbx(h.done)}</button>
+            <div class="flex-1 min-w-0"><div class="text-sm ${h.done ? 'line-through text-zinc-500' : ''}">${esc(h.t)}</div><div class="text-[11px] ${late ? 'text-red-400' : 'text-zinc-500'}">${late ? 'просрочено · ' : 'до '}${fmtDay(h.due)}</div></div>
+            <button data-a="hwDel" data-s="${si}" data-id="${h.id}" class="btn-ghost p-2 rounded-lg" aria-label="Удалить"><i data-lucide="x" class="w-4 h-4"></i></button></div>`; }).join('') : '<div class="text-xs text-zinc-600">Заданий нет</div>'}</div>
+      </div>` : ''}
+    </div>`; }).join('')}</div></div>`;
+};
+
+/* Quests */
+V.quests = () => {
+  const q = dailyQuests(), done = q.filter(x => qDone(x)).length;
+  const n = bNow(), sec = 86400 - (n.getUTCHours() * 3600 + n.getUTCMinutes() * 60 + n.getUTCSeconds());
+  const dLeft = 7 - ((dowOf(today()) + 6) % 7);
+  const wk = weekStart(), wc = state.quests.weekly[wk] || {};
+  return `<div class="fade">
+  <div class="flex items-center gap-3 mb-5"><div class="ico" style="--h:var(--acc)"><i data-lucide="scroll-text"></i></div><div class="flex-1"><h1 class="text-xl font-bold">Квесты</h1><p class="text-xs text-zinc-500">${DOW_L[dowOf(today())]}, ${fmtDay(today())}${isWeekend(today()) ? ' · ОРТ в отпуске 🌴' : ''}</p></div></div>
+  <div class="card p-5 relative overflow-hidden"><div class="glow"></div>
+    <div class="flex justify-between items-end"><div><div class="label">Ежедневные</div><div class="text-3xl font-extrabold mt-1">${done}<span class="text-zinc-500 text-lg"> / ${q.length}</span></div></div>
+    <div class="text-right"><div class="label">Новые квесты через</div><div id="qTimer" class="mono text-lg font-bold">${Math.floor(sec / 3600)}ч ${Math.floor(sec % 3600 / 60)}м</div></div></div>
+    ${bar(done / q.length)}
+  </div>
+  <div class="card divide-y divide-white/5 mt-3">${q.map(questRow).join('')}</div>
+  ${sectionTitle('Накопительные до конца недели', `<span class="text-xs text-zinc-500">осталось ${dLeft} ${plural(dLeft, 'день', 'дня', 'дней')}</span>`)}
+  <div class="grid sm:grid-cols-2 gap-3">${WQ.map(w => {
+    const v = w.v(), ok = v >= w.g, cl = wc[w.id];
+    return `<div class="card p-4 ${cl ? 'opacity-60' : ''}">
+      <div class="flex items-center gap-3"><div class="ico !w-9 !h-9 !rounded-xl" style="--h:${QHUE[w.i === 'skate' ? 'skate' : 'school']}">${icon(w.i)}</div>
+      <div class="flex-1 min-w-0"><div class="text-sm font-semibold">${w.t}</div><div class="text-xs text-zinc-500 mt-0.5">${Math.min(v, w.g)} / ${w.g} ${w.u || ''} · <span class="text-amber-300/80">+${w.r} 🪙</span></div></div>
+      ${cl ? `<span class="text-xs acc-text font-bold">Получено</span>` : `<button data-a="wqClaim" data-id="${w.id}" class="btn !py-2 !px-3 text-xs" ${ok ? '' : 'disabled'}>Забрать</button>`}</div>
+      ${bar(v / w.g)}
+    </div>`; }).join('')}</div></div>`;
+};
+
+/* Achievements */
+V.achievements = () => {
+  const block = per => ACH.filter(a => a.per === per).map(a => {
+    const g = achGoal(a), v = a.v(), ok = v >= g, cl = state.ach[achKey(a)];
+    return `<div class="card p-4 ${ok ? 'acc-border' : ''}">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl grid place-items-center ${ok ? 'acc-bg' : 'bg-white/[.04] text-zinc-500'}">${icon(a.i, 'w-5 h-5')}</div>
+        <div class="flex-1 min-w-0"><div class="font-bold text-sm">${a.t}</div><div class="text-xs text-zinc-500 mt-0.5">${a.d}</div></div>
+        ${cl ? `<span class="text-xs font-bold acc-text flex items-center gap-1"><i data-lucide="medal" class="w-4 h-4"></i>Есть</span>` : ok ? `<button data-a="achClaim" data-id="${a.id}" class="btn !py-2 !px-3 text-xs">+${a.r} 🪙</button>` : `<span class="text-xs text-zinc-600 flex items-center gap-1"><i data-lucide="lock" class="w-3.5 h-3.5"></i>${a.r}</span>`}
+      </div>
+      <div class="flex items-center gap-3 mt-3"><div class="flex-1">${bar(v / g, '')}</div><span class="text-[11px] text-zinc-500 tabular-nums">${Math.min(v, g)}/${g}</span></div>
+    </div>`; }).join('');
+  return `<div class="fade">
+  <div class="flex items-center gap-3 mb-5"><div class="ico" style="--h:#fbbf24"><i data-lucide="trophy"></i></div><div><h1 class="text-xl font-bold">Достижения</h1><p class="text-xs text-zinc-500">Обновляются каждую неделю и каждый месяц</p></div></div>
+  ${sectionTitle('За неделю', `<span class="text-xs text-zinc-500">с ${fmtDay(weekStart())}</span>`)}
+  <div class="grid sm:grid-cols-2 gap-3">${block('w')}</div>
+  ${sectionTitle('За месяц', `<span class="text-xs text-zinc-500">${MONTHS_N[bNow().getUTCMonth()]}</span>`)}
+  <div class="grid sm:grid-cols-2 gap-3">${block('m')}</div></div>`;
+};
+
+/* Shop */
+let shopTab = 'themes';
+V.shop = () => {
+  const sh = state.shop, pet = PETS.find(p => p.id === sh.pet);
+  const tabs = [['themes','Цвета','palette'],['pets','Питомцы','paw-print'],['accs','Одежда','shirt']];
+  let body = '';
+  if (shopTab === 'themes') body = `<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">${THEMES.map(t => {
+    const own = sh.themes.includes(t.id), on = sh.theme === t.id;
+    return `<div class="card p-4 ${on ? 'acc-border' : ''}">
+      <div class="h-16 rounded-xl" style="background:linear-gradient(135deg,${t.a},${t.b})"></div>
+      <div class="font-bold mt-3">${t.n}</div>
+      ${on ? `<div class="text-xs acc-text font-bold mt-2 py-2">Активна</div>` : own ? `<button data-a="themeUse" data-id="${t.id}" class="btn-soft w-full mt-2 text-xs !py-2">Применить</button>` : `<button data-a="themeBuy" data-id="${t.id}" class="btn w-full mt-2 text-xs !py-2">${t.p} 🪙</button>`}
+    </div>`; }).join('')}</div>`;
+  if (shopTab === 'pets') body = `${pet ? `<div class="card p-5 mb-3 flex flex-wrap items-center gap-4"><div class="pt-3 px-2">${petHTML(56)}</div>
+      <form data-f="petName" class="flex gap-2 flex-1 min-w-[200px]"><input name="n" maxlength="20" placeholder="Имя питомца" value="${esc(sh.petName)}" class="inp flex-1"><button class="btn-soft">Назвать</button></form></div>` : ''}
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">${PETS.map(p => {
+      const own = sh.pets.includes(p.id), on = sh.pet === p.id;
+      return `<div class="card p-4 text-center ${on ? 'acc-border' : ''}"><div class="text-5xl py-3">${p.e}</div><div class="font-bold">${p.n}</div>
+        ${on ? `<div class="text-xs acc-text font-bold mt-2 py-2">С тобой</div>` : own ? `<button data-a="petUse" data-id="${p.id}" class="btn-soft w-full mt-2 text-xs !py-2">Взять с собой</button>` : `<button data-a="petBuy" data-id="${p.id}" class="btn w-full mt-2 text-xs !py-2">${p.p} 🪙</button>`}</div>`; }).join('')}</div>`;
+  if (shopTab === 'accs') body = `${!pet ? `<div class="card p-4 mb-3 text-sm text-zinc-400 flex items-center gap-2"><i data-lucide="info" class="w-4 h-4"></i>Сначала заведи питомца — тогда сможешь его наряжать.</div>` : `<div class="card p-5 mb-3 flex items-center justify-center pt-8">${petHTML(80)}</div>`}
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">${ACCS.map(a => {
+      const own = sh.accs.includes(a.id), on = sh.eq[a.s] === a.id;
+      return `<div class="card p-4 text-center ${on ? 'acc-border' : ''}"><div class="text-4xl py-2">${a.e}</div><div class="font-bold text-sm">${a.n}</div><div class="text-[11px] text-zinc-500">${SLOT_N[a.s]}</div>
+        ${own ? `<button data-a="accEq" data-id="${a.id}" class="${on ? 'btn' : 'btn-soft'} w-full mt-2 text-xs !py-2" ${pet ? '' : 'disabled'}>${on ? 'Снять' : 'Надеть'}</button>` : `<button data-a="accBuy" data-id="${a.id}" class="btn w-full mt-2 text-xs !py-2">${a.p} 🪙</button>`}</div>`; }).join('')}</div>`;
+  return `<div class="fade">
+  <div class="flex items-center gap-3 mb-5"><div class="ico" style="--h:#fbbf24"><i data-lucide="store"></i></div><div class="flex-1"><h1 class="text-xl font-bold">Магазин</h1><p class="text-xs text-zinc-500">Трать коины, заработанные на квестах</p></div>
+    <div class="text-right"><div class="label">Баланс</div><div class="text-lg font-extrabold text-amber-300">${state.coins} 🪙</div></div></div>
+  <div class="flex gap-2 mb-4 overflow-x-auto noscroll">${tabs.map(([id, t, i]) => `<button data-a="shopTab" data-id="${id}" class="chip flex items-center gap-2 !px-4 !py-2 ${shopTab === id ? 'on' : ''}"><i data-lucide="${i}" class="w-4 h-4"></i>${t}</button>`).join('')}</div>
+  ${body}</div>`;
+};
+
+/* ============ router & render ============ */
+const NAV = [['home','Главная','house'],['study','Учёба','graduation-cap'],['quests','Квесты','scroll-text'],['achievements','Награды','trophy'],['shop','Магазин','store']];
+const route = () => { const r = (location.hash || '#home').slice(1); return V[r] ? r : 'home'; };
+function render(){
+  const r = route();
+  $('#view').innerHTML = V[r]();
+  const top = MOD[r] ? 'home' : r;
+  $('#dnav').innerHTML = NAV.map(([id, t]) => `<a href="#${id}" class="navlink px-3 py-2 rounded-xl ${top === id ? 'on' : ''}">${t}</a>`).join('');
+  $('#mnav').innerHTML = `<div class="grid grid-cols-5">${NAV.map(([id, t, i]) => `<a href="#${id}" class="flex flex-col items-center gap-1 py-2.5 text-[10px] font-semibold ${top === id ? 'on' : ''}"><i data-lucide="${i}" class="w-5 h-5"></i>${t}</a>`).join('')}</div>`;
+  $('#coins').textContent = state.coins;
+  $('#avatar').textContent = state.profile.avatar;
+  if (window.lucide) lucide.createIcons();
+}
+/* ============ light / dark mode ============ */
+const MKEY = 'lifequest.mode', sysLight = matchMedia('(prefers-color-scheme: light)');
+const modePref = () => { try { const m = localStorage.getItem(MKEY); return m === 'light' || m === 'dark' ? m : 'auto'; } catch { return 'auto'; } };
+const modeNow = () => { const p = modePref(); return p === 'auto' ? (sysLight.matches ? 'light' : 'dark') : p; };
+function paintMode(){ const b = $('#modeBtn'); if (!b) return; b.innerHTML = `<i data-lucide="${modeNow() === 'light' ? 'moon' : 'sun'}" class="w-[18px] h-[18px]"></i>`; if (window.lucide) lucide.createIcons(); }
+function applyMode(){ const m = modeNow(); document.documentElement.dataset.mode = m; $('meta[name=theme-color]')?.setAttribute('content', m === 'light' ? '#f4f4f8' : '#09090b'); paintMode(); }
+function setMode(p){ try { p === 'auto' ? localStorage.removeItem(MKEY) : localStorage.setItem(MKEY, p); } catch {} applyMode(); }
+sysLight.addEventListener?.('change', () => { if (modePref() === 'auto') applyMode(); });
+
+function applyTheme(){
+  const t = THEMES.find(x => x.id === state.shop.theme) || THEMES[0];
+  const r = document.documentElement.style;
+  r.setProperty('--acc', t.a); r.setProperty('--acc2', t.b); r.setProperty('--onacc', t.on || '#fff');
+}
+addEventListener('hashchange', () => { render(); scrollTo({top:0}); });
+
+/* ============ modal & toast ============ */
+function toast(html){
+  const el = document.createElement('div');
+  el.className = 'toast pointer-events-auto bg-zinc-900/95 border border-white/10 rounded-2xl px-4 py-3 text-sm shadow-2xl backdrop-blur';
+  el.innerHTML = html; $('#toasts').appendChild(el);
+  setTimeout(() => { el.style.transition = 'opacity .3s'; el.style.opacity = 0; setTimeout(() => el.remove(), 300); }, 2600);
+}
+let onConfirm = null;
+function modal(html){ const m = $('#modal'); m.innerHTML = `<div class="fade w-full sm:max-w-md bg-zinc-950 border border-white/10 rounded-t-3xl sm:rounded-3xl p-6 max-h-[92vh] overflow-y-auto" style="padding-bottom:calc(1.5rem + env(safe-area-inset-bottom))">${html}</div>`; m.classList.remove('hidden'); m.classList.add('flex'); if (window.lucide) lucide.createIcons(); }
+function closeModal(){ const m = $('#modal'); m.classList.add('hidden'); m.classList.remove('flex'); m.innerHTML = ''; }
+function confirmBox(text, fn){ onConfirm = fn; modal(`<div class="text-lg font-bold">Ты уверен?</div><p class="text-sm text-zinc-400 mt-2">${text}</p><div class="grid grid-cols-2 gap-2 mt-6"><button data-a="close" class="btn-soft">Отмена</button><button data-a="confirmYes" class="btn !bg-none !bg-red-500 !text-white">Да</button></div>`); }
+$('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+const AVATARS = ['🧑','👦','👧','🧔','🦸','🥷','🧙','🤖','😎','🐺'];
+const G_LOGO = `<svg viewBox="0 0 48 48" class="w-5 h-5"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.6-5.9c-2.1 1.4-4.8 2.3-7.6 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>`;
+function accountHTML(){
+  const box = 'mt-5 p-3 rounded-2xl border border-white/5';
+  if (gUser) return `<div class="${box}"><div class="flex items-center gap-3">
+      ${gUser.photoURL ? `<img src="${esc(gUser.photoURL)}" referrerpolicy="no-referrer" alt="" class="w-10 h-10 rounded-full">` : `<div class="w-10 h-10 rounded-full bg-white/[.05] grid place-items-center">${G_LOGO}</div>`}
+      <div class="min-w-0 flex-1"><div class="text-sm font-bold truncate">${esc(gUser.displayName || 'Аккаунт Google')}</div><div class="text-xs text-zinc-500 truncate">${esc(gUser.email || '')}</div></div>
+      <button data-a="signOut" class="btn-soft !py-2 text-xs">Выйти</button></div>
+    <p class="text-xs mt-3 flex items-center gap-1.5 ${sync === 'cloud' ? 'text-emerald-500' : 'text-zinc-500'}"><i data-lucide="${sync === 'cloud' ? 'cloud' : 'cloud-off'}" class="w-4 h-4"></i>${sync === 'cloud' ? 'Прогресс сохраняется в облаке и доступен на любом устройстве' : sync === 'error' ? 'Ошибка синхронизации — прогресс пока на этом устройстве' : 'Подключаемся к облаку…'}</p></div>`;
+  if (sync === 'cloud') return `<div class="${box} flex items-start gap-3"><i data-lucide="cloud" class="w-5 h-5 mt-0.5 text-emerald-500"></i><div class="text-xs text-zinc-400"><b class="text-zinc-200">Аккаунт</b><br>Прогресс сохраняется в облаке через твой аккаунт Claude.</div></div>`;
+  return `<div class="${box}"><div class="text-xs text-zinc-400 mb-3"><b class="text-zinc-200">Аккаунт</b><br>Войди через Google — прогресс не потеряется и будет одинаковым на телефоне и ноутбуке.</div>
+    <button data-a="signIn" class="w-full flex items-center justify-center gap-2.5 rounded-xl py-2.5 bg-white text-zinc-900 border border-zinc-300 font-semibold text-sm hover:bg-zinc-100 transition">${G_LOGO}Войти через Google</button></div>`;
+}
+function setupModal(){
+  modal(`<div class="flex items-center justify-between"><div class="text-lg font-bold">Подключение Google-входа</div><button data-a="close" class="btn-ghost p-2 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+    <ol class="text-sm text-zinc-400 mt-3 space-y-2 list-decimal pl-5">
+      <li>Создай проект на <b class="text-zinc-200">console.firebase.google.com</b> (бесплатно).</li>
+      <li><b class="text-zinc-200">Authentication → Sign-in method</b> → включи Google.</li>
+      <li><b class="text-zinc-200">Firestore Database</b> → создай базу и вставь правила: <code class="mono text-xs">match /users/{uid} { allow read, write: if request.auth.uid == uid; }</code></li>
+      <li><b class="text-zinc-200">Project settings → Your apps → Web</b> → скопируй config в <code class="mono text-xs">FIREBASE_CONFIG</code> в начале скрипта.</li>
+      <li>Добавь адрес сайта в <b class="text-zinc-200">Authentication → Settings → Authorized domains</b>. Открывать нужно по https:// (не файлом).</li>
+    </ol><button data-a="close" class="btn w-full mt-5">Понятно</button>`);
+}
+function profileModal(){
+  const L = levelOf(state.stats.earned);
+  modal(`<div class="flex items-center justify-between"><div class="text-lg font-bold">Профиль</div><button data-a="close" class="btn-ghost p-2 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+    <div class="flex items-center gap-3 mt-4 p-3 rounded-2xl bg-white/[.03]"><div class="text-4xl">${esc(state.profile.avatar)}</div><div><div class="font-bold">${esc(state.profile.name)}</div><div class="text-xs text-zinc-500">Уровень ${L} · заработано ${state.stats.earned} 🪙</div></div></div>
+    <div class="grid grid-cols-4 gap-2 mt-3">${[['Квестов', Object.values(state.quests.done).reduce((n, d) => n + Object.keys(d || {}).length, 0)], ['Книг', state.books.filter(b => b.done).length], ['Судоку', Object.values(state.sudoku.solved).reduce((n, v) => n + v, 0)], ['Трен.', Object.values(state.gym.workouts).filter(Boolean).length]].map(([t, v]) => `<div class="rounded-xl bg-white/[.03] border border-white/5 py-2 text-center"><div class="font-extrabold tabular-nums">${v}</div><div class="text-[10px] text-zinc-500">${t}</div></div>`).join('')}</div>
+    <div class="mt-4"><span class="label">Оформление</span><div class="grid grid-cols-3 gap-2 mt-1">${[['light', 'Светлая', 'sun'], ['dark', 'Тёмная', 'moon'], ['auto', 'Авто', 'monitor']].map(([m, t, i]) => `<button type="button" data-a="modeSet" data-m="${m}" class="chip !rounded-xl flex items-center justify-center gap-1.5 ${modePref() === m ? 'on' : ''}"><i data-lucide="${i}" class="w-4 h-4"></i>${t}</button>`).join('')}</div></div>
+    <form data-f="profile" class="mt-4 space-y-3">
+      <label class="block"><span class="label">Имя игрока</span><input name="n" maxlength="24" value="${esc(state.profile.name)}" class="inp w-full mt-1"></label>
+      <div><span class="label">Аватар</span><div class="grid grid-cols-5 gap-2 mt-1">${AVATARS.map(a => `<label class="cursor-pointer"><input type="radio" name="a" value="${a}" class="peer hidden" ${state.profile.avatar === a ? 'checked' : ''}><div class="text-2xl py-2 rounded-xl text-center bg-white/[.03] border border-white/5 peer-checked:border-white/50 peer-checked:bg-white/10">${a}</div></label>`).join('')}</div></div>
+      <button class="btn w-full">Сохранить</button>
+    </form>
+    ${accountHTML()}
+    <button data-a="reset" class="w-full mt-3 text-xs text-red-400/80 py-2 hover:text-red-400">Сбросить весь прогресс</button>`);
+}
+
+/* ============ actions ============ */
+const subjOf = el => SUBJECTS[+el.dataset.s];
+const A = {
+  close: closeModal,
+  confirmYes(){ const f = onConfirm; onConfirm = null; closeModal(); f && f(); },
+  profile: profileModal,
+  mode(){ setMode(modeNow() === 'light' ? 'dark' : 'light'); },
+  modeSet(el){ setMode(el.dataset.m); profileModal(); },
+  async signIn(){
+    if (!FB_ON) return setupModal();
+    if (!fbAuth) return toast('Google ещё загружается — попробуй через секунду');
+    const prov = new firebase.auth.GoogleAuthProvider(); prov.setCustomParameters({prompt:'select_account'});
+    try { await fbAuth.signInWithPopup(prov); closeModal(); }
+    catch (e) {
+      if (['auth/popup-blocked', 'auth/operation-not-supported-in-this-environment'].includes(e.code)) fbAuth.signInWithRedirect(prov);
+      else if (!['auth/popup-closed-by-user', 'auth/cancelled-popup-request'].includes(e.code)) toast('Не удалось войти: ' + esc(e.code || 'ошибка'));
+    }
+  },
+  signOut(){ confirmBox('Ты выйдешь из аккаунта. Прогресс останется в облаке — войди снова, чтобы продолжить.', async () => { await fbAuth?.signOut(); toast('Ты вышел из аккаунта'); }); },
+  reset(){ confirmBox('Все книги, оценки, коины и покупки будут удалены без возможности восстановления.', () => { state = defaultState(); persist(); applyTheme(); render(); toast('Прогресс сброшен'); }); },
+  qDone(el){ const q = dailyQuests().find(x => x.id === el.dataset.id); if (!q || qDone(q)) return;
+    (state.quests.done[today()] ||= {})[q.id] = true; earn(q.r, 'квест выполнен'); render(); },
+  wqClaim(el){ const w = WQ.find(x => x.id === el.dataset.id), wk = weekStart(); const c = (state.quests.weekly[wk] ||= {});
+    if (!w || c[w.id] || w.v() < w.g) return; c[w.id] = true; earn(w.r, 'недельный квест'); render(); },
+  achClaim(el){ const a = ACH.find(x => x.id === el.dataset.id); if (!a) return; const k = achKey(a);
+    if (state.ach[k] || a.v() < achGoal(a)) return; state.ach[k] = true; earn(a.r, `достижение «${a.t}»`); render(); },
+  readAdd(el){ const n = +el.dataset.n; addPages(n); persist(); render(); toast(`📖 +${n} стр. засчитано`); },
+  delBook(el){ const b = state.books.find(x => x.id === el.dataset.id); if (!b) return;
+    confirmBox(`Удалить книгу «${esc(b.title)}»?`, () => { state.books = state.books.filter(x => x !== b); persist(); render(); }); },
+  skill(el){ const s = state.skate.skills, id = el.dataset.id; if (s[id]) delete s[id]; else { s[id] = today(); toast('🛹 Навык освоен!'); } persist(); render(); },
+  gymDay(el){ const w = state.gym.workouts, k = el.dataset.k; if (w[k]) delete w[k]; else w[k] = true; persist(); render(); },
+  gymReset(){ const g = state.gym; confirmBox('Текущий вес тела станет стартовым для нового месяца.', () => { if (g.curWeight !== '') g.startWeight = g.curWeight; persist(); render(); }); },
+  ortSec(el){ const s = el.dataset.s; ortSel.has(s) ? ortSel.delete(s) : ortSel.add(s); el.classList.toggle('on'); },
+  ortUndo(){ delete state.ort.days[today()]; persist(); render(); },
+  engLevel(el){ state.eng.level = el.dataset.l; persist(); render(); },
+  engStep(el){ const s = state.eng.steps, id = el.dataset.id; if (s[id]) delete s[id]; else s[id] = today(); persist(); render(); },
+  subj(el){ const n = subjOf(el); openSubj = openSubj === n ? null : n; render(); },
+  addGrade(el){ state.school[subjOf(el)].grades.push({v:+el.dataset.v, d:today()}); persist(); render(); },
+  delGrade(el){ state.school[subjOf(el)].grades.splice(+el.dataset.i, 1); persist(); render(); },
+  hwToggle(el){ const h = state.school[subjOf(el)].hw.find(x => x.id === el.dataset.id); if (!h) return; h.done = !h.done; h.doneAt = h.done ? today() : null; persist(); render(); },
+  hwDel(el){ const s = state.school[subjOf(el)]; s.hw = s.hw.filter(x => x.id !== el.dataset.id); persist(); render(); },
+  shopTab(el){ shopTab = el.dataset.id; render(); },
+  themeBuy(el){ const t = THEMES.find(x => x.id === el.dataset.id); if (!t || !spend(t.p)) return; state.shop.themes.push(t.id); state.shop.theme = t.id; persist(); applyTheme(); render(); toast(`🎨 Тема «${t.n}» куплена`); },
+  themeUse(el){ state.shop.theme = el.dataset.id; persist(); applyTheme(); render(); },
+  petBuy(el){ const p = PETS.find(x => x.id === el.dataset.id); if (!p || !spend(p.p)) return; state.shop.pets.push(p.id); state.shop.pet = p.id; persist(); render(); toast(`${p.e} ${p.n} теперь с тобой!`); },
+  petUse(el){ state.shop.pet = el.dataset.id; persist(); render(); },
+  accBuy(el){ const a = ACCS.find(x => x.id === el.dataset.id); if (!a || !spend(a.p)) return; state.shop.accs.push(a.id); if (state.shop.pet) state.shop.eq[a.s] = a.id; persist(); render(); toast(`${a.e} ${a.n} куплен(а)`); },
+  accEq(el){ const a = ACCS.find(x => x.id === el.dataset.id); const eq = state.shop.eq; eq[a.s] = eq[a.s] === a.id ? null : a.id; persist(); render(); },
+  sNew(el){ const l = el.dataset.l; sGen = l; sSel = -1; render();
+    setTimeout(() => { state.sudoku.cur = sGenerate(l); sGen = null; persist(); render(); }, 60); },
+  sQuit(){ state.sudoku.cur = null; sSel = -1; persist(); render(); },
+  sCell(el){ sSel = +el.dataset.i; render(); },
+  sNum(el){ sInput(+el.dataset.n); },
+  sErase(){ const c = state.sudoku.cur; if (!c || sSel < 0 || c.puz[sSel]) return; c.cur[sSel] = 0; persist(); render(); },
+  sHint(){ const c = state.sudoku.cur; if (!c) return;
+    let i = sSel >= 0 && c.cur[sSel] !== c.sol[sSel] ? sSel : c.cur.findIndex((v, j) => v !== c.sol[j]);
+    if (i < 0 || !spend(5)) return; c.cur[i] = c.sol[i]; c.hints++; sSel = i; persist(); sCheck(); render(); }
+};
+function addPages(n){
+  if (n <= 0) return;
+  state.readLog[today()] = (state.readLog[today()] || 0) + n;
+  const b = activeBook();
+  if (b) { b.read = Math.min(b.total, b.read + n); bookDone(b); }
+}
+function bookDone(b){ if (b.read >= b.total && !b.done) { b.done = true; earn(30, `книга «${b.title}» дочитана`); } }
+function sInput(n){
+  const c = state.sudoku.cur; if (!c || sSel < 0 || c.puz[sSel]) return;
+  if (c.cur[sSel] === n) return;
+  c.cur[sSel] = n;
+  if (n !== c.sol[sSel]) c.err++;
+  persist(); sCheck(); render();
+}
+function sCheck(){
+  const c = state.sudoku.cur; if (!c || c.cur.some((v, i) => v !== c.sol[i])) return;
+  const s = state.sudoku, r = SUD[c.l].r;
+  s.solved[c.l]++; s.log[today()] = (s.log[today()] || 0) + 1;
+  s.hist.push({d:today(), l:c.l}); if (s.hist.length > 300) s.hist = s.hist.slice(-300);
+  const lvl = c.l; s.cur = null; sSel = -1;
+  earn(r, `судоку «${SUD[lvl].n}» решено`);
+  setTimeout(() => modal(`<div class="text-center"><div class="text-5xl">🧩</div><div class="text-xl font-bold mt-3">Головоломка решена!</div><p class="text-sm text-zinc-400 mt-1">Уровень «${SUD[lvl].n}» · +${r} 🪙</p><div class="grid grid-cols-2 gap-2 mt-6"><button data-a="close" class="btn-soft">Готово</button><button data-a="sNew" data-l="${lvl}" class="btn">Ещё одну</button></div></div>`), 150);
+}
+const F = {
+  readGoal(f){ state.readGoal = Math.max(1, Math.round(num(f.g.value))) || 200; persist(); render(); },
+  addBook(f){ const total = Math.max(1, Math.round(num(f.total.value))), read = Math.min(total, Math.max(0, Math.round(num(f.read.value))));
+    const b = {id:uid(), title:f.title.value.trim() || 'Без названия', total, read, done:read >= total};
+    state.books.push(b); persist(); render(); toast(`📚 «${esc(b.title)}» — ${pct(read / total)}%`); },
+  bookRead(f){ const b = state.books.find(x => x.id === f.dataset.id); if (!b) return;
+    const v = Math.min(b.total, Math.max(0, Math.round(num(f.read.value)))), d = v - b.read;
+    if (d > 0) state.readLog[today()] = (state.readLog[today()] || 0) + d;
+    b.read = v; bookDone(b); persist(); render(); },
+  skateLog(f){ const m = Math.round(num(f.m.value)); if (m <= 0) return; state.skate.sessions[today()] = (state.skate.sessions[today()] || 0) + m; persist(); render(); toast(`🛹 +${m} мин катания`); },
+  gymMass(f){ state.gym.startWeight = f.s.value; state.gym.curWeight = f.c.value; persist(); render(); },
+  gymBench(f){ state.gym.curBench = f.c.value; persist(); render(); },
+  ortLog(f){ const m = Math.max(5, Math.round(num(f.m.value))); state.ort.days[today()] = {m, s:[...ortSel]}; persist(); render(); toast('🎯 День подготовки засчитан'); },
+  ortExam(f){ state.ort.exam = f.d.value; persist(); render(); },
+  engLog(f){ const m = Math.round(num(f.m.value)); if (m <= 0) return; state.eng.practice[today()] = (state.eng.practice[today()] || 0) + m; persist(); render(); toast(`🗣️ +${m} мин практики`); },
+  addHw(f){ const s = state.school[subjOf(f)]; s.hw.push({id:uid(), t:f.t.value.trim(), due:f.d.value || today(), done:false}); persist(); render(); },
+  petName(f){ state.shop.petName = f.n.value.trim(); persist(); render(); toast('Имя сохранено'); },
+  profile(f){ state.profile.name = f.n.value.trim() || 'Игрок'; const a = f.querySelector('input[name=a]:checked'); if (a) state.profile.avatar = a.value; persist(); closeModal(); render(); }
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-a]'); if (!el || el.disabled) return;
+  if (el.tagName !== 'A') e.preventDefault();
+  A[el.dataset.a]?.(el, e);
+});
+document.addEventListener('submit', e => { e.preventDefault(); const f = e.target; F[f.dataset.f]?.(f); });
+document.addEventListener('input', e => {
+  const f = e.target.form; if (!f || f.dataset.f !== 'addBook') return;
+  const t = num(f.total.value), r = num(f.read.value), out = $('#calcOut');
+  if (t > 0) { const p = clamp(r / t); out.innerHTML = `<div class="flex items-center gap-3"><span class="text-2xl font-extrabold acc-text tabular-nums">${pct(p)}%</span><span>прочитано · осталось ${Math.max(0, t - r)} стр.</span></div>${bar(p, 'mt-2')}`; }
+});
+document.addEventListener('keydown', e => {
+  if (route() !== 'sudoku' || !state.sudoku.cur || /INPUT|TEXTAREA/.test(document.activeElement?.tagName)) return;
+  if (/^[1-9]$/.test(e.key)) { sInput(+e.key); e.preventDefault(); }
+  else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') A.sErase();
+  else if (e.key.startsWith('Arrow')) { if (sSel < 0) sSel = 0; else { const d = {ArrowUp:-9, ArrowDown:9, ArrowLeft:-1, ArrowRight:1}[e.key]; sSel = (sSel + d + 81) % 81; } render(); e.preventDefault(); }
+});
+document.addEventListener('click', e => { const a = e.target.closest('a[data-tab]'); if (a) shopTab = a.dataset.tab; }, true);
+
+/* ============ clock ============ */
+let lastDay = today();
+function tick(){
+  const n = bNow(), pad = x => String(x).padStart(2, '0');
+  $('#clk').textContent = `${pad(n.getUTCHours())}:${pad(n.getUTCMinutes())}:${pad(n.getUTCSeconds())}`;
+  $('#clkd').textContent = `Бишкек · ${DOW_S[n.getUTCDay()]}, ${n.getUTCDate()} ${MONTHS_G[n.getUTCMonth()]}`;
+  const qt = $('#qTimer'); if (qt) { const s = 86400 - (n.getUTCHours() * 3600 + n.getUTCMinutes() * 60 + n.getUTCSeconds()); qt.textContent = `${Math.floor(s / 3600)}ч ${Math.floor(s % 3600 / 60)}м`; }
+  if (today() !== lastDay) { lastDay = today(); render(); }
+}
+setInterval(tick, 1000);
+
+applyMode(); applyTheme(); render(); tick(); paintSync();
+FB_ON ? initGoogle() : initCloud();
+</script>
+</body>
+</html>
