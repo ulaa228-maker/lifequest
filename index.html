@@ -268,7 +268,7 @@ function migrate(s){
 /* ============ persistence ============ */
 const LS = 'lifequest.v1';
 let state = (() => { try { return migrate(JSON.parse(localStorage.getItem(LS))); } catch { return defaultState(); } })();
-let dbRef = null, sync = 'local', pushT = null;
+let dbRef = null, sync = 'local', syncErr = '', pushT = null;
 function persist(){
   state.updatedAt = Date.now();
   try { localStorage.setItem(LS, JSON.stringify(state)); } catch {}
@@ -276,7 +276,7 @@ function persist(){
 }
 async function pushRemote(){
   if (!dbRef) return;
-  try { await dbRef.set(JSON.parse(JSON.stringify(state))); sync = 'cloud'; } catch (e) { sync = 'error'; }
+  try { await dbRef.set(JSON.parse(JSON.stringify(state))); sync = 'cloud'; syncErr = ''; } catch (e) { sync = 'error'; syncErr = e.code || String(e.message || e); }
   paintSync();
 }
 const snapData = s => {
@@ -298,19 +298,29 @@ const FIREBASE_CONFIG = {
 const FB_ON = !!(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId);
 let gUser = null, fbAuth = null;
 const loadScript = src => new Promise((res, rej) => { const el = document.createElement('script'); el.src = src; el.onload = res; el.onerror = rej; document.head.appendChild(el); });
-async function attach(ref){
+const takeRemote = r => { state = migrate(r); try { localStorage.setItem(LS, JSON.stringify(state)); } catch {} applyTheme(); render(); };
+const getRemote = async ref => snapData(await Promise.race([ref.get(), new Promise((_, j) => setTimeout(() => j({code:'timeout'}), 10000))]));
+async function attach(ref, preferRemote){
+  dbRef = ref;
   try {
-    const remote = snapData(await Promise.race([ref.get(), new Promise((_, j) => setTimeout(() => j('timeout'), 10000))]));
-    dbRef = ref;
-    if (remote && remote.v && (remote.updatedAt || 0) > (state.updatedAt || 0)) {
-      state = migrate(remote);
-      try { localStorage.setItem(LS, JSON.stringify(state)); } catch {}
-      applyTheme(); render();
-    } else if (state.updatedAt) { await pushRemote(); }
-    sync = 'cloud';
-  } catch (e) { sync = 'local'; }
+    const remote = await getRemote(ref), has = remote && remote.v && (remote.updatedAt || 0) > 0;
+    if (has && (preferRemote || remote.updatedAt > (state.updatedAt || 0))) takeRemote(remote);
+    else if (state.updatedAt) { await pushRemote(); paintSync(); return; }
+    sync = 'cloud'; syncErr = '';
+  } catch (e) { sync = 'error'; syncErr = e.code || String(e.message || e); }
   paintSync();
 }
+async function pullRemote(manual){
+  if (!dbRef) return;
+  try {
+    const remote = await getRemote(dbRef), rt = (remote && remote.updatedAt) || 0, lt = state.updatedAt || 0;
+    if (remote && remote.v && rt > lt) { takeRemote(remote); sync = 'cloud'; syncErr = ''; if (manual) toast('☁️ Загружен свежий прогресс из облака'); }
+    else if (lt > rt) { await pushRemote(); if (manual && sync === 'cloud') toast('☁️ Прогресс отправлен в облако'); }
+    else { sync = 'cloud'; syncErr = ''; if (manual) toast('☁️ Всё уже синхронизировано'); }
+  } catch (e) { sync = 'error'; syncErr = e.code || String(e.message || e); if (manual) toast('Ошибка облака: ' + esc(syncErr)); }
+  paintSync();
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) pullRemote(); });
 async function initGoogle(){
   try {
     const base = 'https://www.gstatic.com/firebasejs/10.12.2/';
@@ -324,7 +334,7 @@ async function initGoogle(){
       if (!u) { dbRef = null; sync = 'local'; paintSync(); return; }
       let last = null; try { last = localStorage.getItem('lifequest.uid'); localStorage.setItem('lifequest.uid', u.uid); } catch {}
       if (last && last !== u.uid) state = defaultState();      /* другой аккаунт на этом устройстве */
-      await attach(db.collection('users').doc(u.uid));
+      await attach(db.collection('users').doc(u.uid), last !== u.uid);
       if (state.profile.name === 'Игрок' && u.displayName) { state.profile.name = u.displayName.split(' ')[0].slice(0, 24); persist(); render(); }
       toast('☁️ Вход выполнен — прогресс синхронизируется');
     });
@@ -975,7 +985,8 @@ function accountHTML(){
       ${gUser.photoURL ? `<img src="${esc(gUser.photoURL)}" referrerpolicy="no-referrer" alt="" class="w-10 h-10 rounded-full">` : `<div class="w-10 h-10 rounded-full bg-white/[.05] grid place-items-center">${G_LOGO}</div>`}
       <div class="min-w-0 flex-1"><div class="text-sm font-bold truncate">${esc(gUser.displayName || 'Аккаунт Google')}</div><div class="text-xs text-zinc-500 truncate">${esc(gUser.email || '')}</div></div>
       <button data-a="signOut" class="btn-soft !py-2 text-xs">Выйти</button></div>
-    <p class="text-xs mt-3 flex items-center gap-1.5 ${sync === 'cloud' ? 'text-emerald-500' : 'text-zinc-500'}"><i data-lucide="${sync === 'cloud' ? 'cloud' : 'cloud-off'}" class="w-4 h-4"></i>${sync === 'cloud' ? 'Прогресс сохраняется в облаке и доступен на любом устройстве' : sync === 'error' ? 'Ошибка синхронизации — прогресс пока на этом устройстве' : 'Подключаемся к облаку…'}</p></div>`;
+    <p class="text-xs mt-3 flex items-start gap-1.5 ${sync === 'cloud' ? 'text-emerald-500' : sync === 'error' ? 'text-red-400' : 'text-zinc-500'}"><i data-lucide="${sync === 'cloud' ? 'cloud' : 'cloud-off'}" class="w-4 h-4 shrink-0"></i><span>${sync === 'cloud' ? 'Прогресс сохраняется в облаке и доступен на любом устройстве' : sync === 'error' ? `Ошибка облака: ${esc(syncErr)}${/permission/i.test(syncErr) ? ' — проверь правила Firestore (Rules → Publish)' : ''}` : 'Подключаемся к облаку…'}</span></p>
+    <button data-a="syncNow" class="btn-soft w-full mt-3 text-sm">Синхронизировать сейчас</button></div>`;
   if (sync === 'cloud') return `<div class="${box} flex items-start gap-3"><i data-lucide="cloud" class="w-5 h-5 mt-0.5 text-emerald-500"></i><div class="text-xs text-zinc-400"><b class="text-zinc-200">Аккаунт</b><br>Прогресс сохраняется в облаке через твой аккаунт Claude.</div></div>`;
   return `<div class="${box}"><div class="text-xs text-zinc-400 mb-3"><b class="text-zinc-200">Аккаунт</b><br>Войди через Google — прогресс не потеряется и будет одинаковым на телефоне и ноутбуке.</div>
     <button data-a="signIn" class="w-full flex items-center justify-center gap-2.5 rounded-xl py-2.5 bg-white text-zinc-900 border border-zinc-300 font-semibold text-sm hover:bg-zinc-100 transition">${G_LOGO}Войти через Google</button></div>`;
@@ -1014,6 +1025,7 @@ const A = {
   mineDel(el){ const m = state.mine.find(x => x.id === el.dataset.id); if (!m) return; confirmBox(`Удалить достижение «${esc(m.t)}»?`, () => { state.mine = state.mine.filter(x => x !== m); persist(); render(); }); },
   confirmYes(){ const f = onConfirm; onConfirm = null; closeModal(); f && f(); },
   profile: profileModal,
+  async syncNow(){ await pullRemote(true); profileModal(); },
   mode(){ setMode(modeNow() === 'light' ? 'dark' : 'light'); },
   modeSet(el){ setMode(el.dataset.m); profileModal(); },
   async signIn(){
