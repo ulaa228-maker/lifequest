@@ -328,6 +328,7 @@ async function initGoogle(){
     await Promise.all([loadScript(base + 'firebase-auth-compat.js'), loadScript(base + 'firebase-firestore-compat.js')]);
     firebase.initializeApp(FIREBASE_CONFIG);
     fbAuth = firebase.auth(); const db = firebase.firestore();
+    db.settings({ experimentalForceLongPolling: true });   /* помогает, когда Safari/VPN блокируют обычное соединение */
     fbAuth.getRedirectResult().catch(e => toast('Не удалось войти: ' + esc(e.code || 'ошибка')));
     fbAuth.onAuthStateChanged(async u => {
       gUser = u;
