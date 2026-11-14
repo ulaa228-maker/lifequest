@@ -321,25 +321,35 @@ async function pullRemote(manual){
   paintSync();
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden) pullRemote(); });
+let FB = null, chosenDb = '';
+async function pickDb(app, uid){
+  /* у проекта база может называться "(default)" или просто "default" — берём ту, что отвечает */
+  const dbs = {}, open = id => dbs[id] || (dbs[id] = FB.F.initializeFirestore(app, { experimentalForceLongPolling: true }, id));
+  const mk = id => { const d = FB.F.doc(open(id), 'users', uid); return { get: () => FB.F.getDoc(d), set: o => FB.F.setDoc(d, o) }; };
+  if (!chosenDb) {
+    const lim = new Promise((_, j) => setTimeout(() => j('timeout'), 9000));
+    const probe = id => Promise.race([mk(id).get().then(() => id, e => e && e.code === 'permission-denied' ? id : Promise.reject(e)), lim]);
+    try { chosenDb = await Promise.any([probe('(default)'), probe('default')]); } catch { chosenDb = '(default)'; }
+  }
+  return mk(chosenDb);
+}
 async function initGoogle(){
   try {
-    const base = 'https://www.gstatic.com/firebasejs/10.12.2/';
-    await loadScript(base + 'firebase-app-compat.js');
-    await Promise.all([loadScript(base + 'firebase-auth-compat.js'), loadScript(base + 'firebase-firestore-compat.js')]);
-    firebase.initializeApp(FIREBASE_CONFIG);
-    fbAuth = firebase.auth(); const db = firebase.firestore();
-    db.settings({ experimentalForceLongPolling: true });   /* помогает, когда Safari/VPN блокируют обычное соединение */
-    fbAuth.getRedirectResult().catch(e => toast('Не удалось войти: ' + esc(e.code || 'ошибка')));
-    fbAuth.onAuthStateChanged(async u => {
+    const B = 'https://www.gstatic.com/firebasejs/10.12.2/';
+    const [A, Au, F] = await Promise.all([import(B + 'firebase-app.js'), import(B + 'firebase-auth.js'), import(B + 'firebase-firestore.js')]);
+    const app = A.initializeApp(FIREBASE_CONFIG);
+    FB = { Au, F }; fbAuth = Au.getAuth(app);
+    Au.getRedirectResult(fbAuth).catch(e => toast('Не удалось войти: ' + esc(e.code || 'ошибка')));
+    Au.onAuthStateChanged(fbAuth, async u => {
       gUser = u;
       if (!u) { dbRef = null; sync = 'local'; paintSync(); return; }
       let last = null; try { last = localStorage.getItem('lifequest.uid'); localStorage.setItem('lifequest.uid', u.uid); } catch {}
       if (last && last !== u.uid) state = defaultState();      /* другой аккаунт на этом устройстве */
-      await attach(db.collection('users').doc(u.uid), last !== u.uid);
+      await attach(await pickDb(app, u.uid), last !== u.uid);
       if (state.profile.name === 'Игрок' && u.displayName) { state.profile.name = u.displayName.split(' ')[0].slice(0, 24); persist(); render(); }
-      toast('☁️ Вход выполнен — прогресс синхронизируется');
+      if (sync === 'cloud') toast('☁️ Вход выполнен — прогресс синхронизируется');
     });
-  } catch (e) { sync = 'local'; paintSync(); }
+  } catch (e) { sync = 'error'; syncErr = 'load-' + (e && (e.code || e.message) || 'failed'); paintSync(); }
 }
 /* ---- fallback: аккаунт Claude (когда сайт открыт внутри Claude) ---- */
 async function initCloud(){
@@ -986,7 +996,7 @@ function accountHTML(){
       ${gUser.photoURL ? `<img src="${esc(gUser.photoURL)}" referrerpolicy="no-referrer" alt="" class="w-10 h-10 rounded-full">` : `<div class="w-10 h-10 rounded-full bg-white/[.05] grid place-items-center">${G_LOGO}</div>`}
       <div class="min-w-0 flex-1"><div class="text-sm font-bold truncate">${esc(gUser.displayName || 'Аккаунт Google')}</div><div class="text-xs text-zinc-500 truncate">${esc(gUser.email || '')}</div></div>
       <button data-a="signOut" class="btn-soft !py-2 text-xs">Выйти</button></div>
-    <p class="text-xs mt-3 flex items-start gap-1.5 ${sync === 'cloud' ? 'text-emerald-500' : sync === 'error' ? 'text-red-400' : 'text-zinc-500'}"><i data-lucide="${sync === 'cloud' ? 'cloud' : 'cloud-off'}" class="w-4 h-4 shrink-0"></i><span>${sync === 'cloud' ? 'Прогресс сохраняется в облаке и доступен на любом устройстве' : sync === 'error' ? `Ошибка облака: ${esc(syncErr)}${/permission/i.test(syncErr) ? ' — проверь правила Firestore (Rules → Publish)' : ''}` : 'Подключаемся к облаку…'}</span></p>
+    <p class="text-xs mt-3 flex items-start gap-1.5 ${sync === 'cloud' ? 'text-emerald-500' : sync === 'error' ? 'text-red-400' : 'text-zinc-500'}"><i data-lucide="${sync === 'cloud' ? 'cloud' : 'cloud-off'}" class="w-4 h-4 shrink-0"></i><span>${sync === 'cloud' ? 'Прогресс сохраняется в облаке и доступен на любом устройстве' : sync === 'error' ? `Ошибка облака: ${esc(syncErr)}${/permission/i.test(syncErr) ? ' — проверь правила Firestore (Rules → Publish)' : ''}${chosenDb ? ` · база: ${esc(chosenDb)}` : ''}` : 'Подключаемся к облаку…'}</span></p>
     <button data-a="syncNow" class="btn-soft w-full mt-3 text-sm">Синхронизировать сейчас</button></div>`;
   if (sync === 'cloud') return `<div class="${box} flex items-start gap-3"><i data-lucide="cloud" class="w-5 h-5 mt-0.5 text-emerald-500"></i><div class="text-xs text-zinc-400"><b class="text-zinc-200">Аккаунт</b><br>Прогресс сохраняется в облаке через твой аккаунт Claude.</div></div>`;
   return `<div class="${box}"><div class="text-xs text-zinc-400 mb-3"><b class="text-zinc-200">Аккаунт</b><br>Войди через Google — прогресс не потеряется и будет одинаковым на телефоне и ноутбуке.</div>
@@ -1031,15 +1041,15 @@ const A = {
   modeSet(el){ setMode(el.dataset.m); profileModal(); },
   async signIn(){
     if (!FB_ON) return setupModal();
-    if (!fbAuth) return toast('Google ещё загружается — попробуй через секунду');
-    const prov = new firebase.auth.GoogleAuthProvider(); prov.setCustomParameters({prompt:'select_account'});
-    try { await fbAuth.signInWithPopup(prov); closeModal(); }
+    if (!fbAuth || !FB) return toast('Google ещё загружается — попробуй через секунду');
+    const prov = new FB.Au.GoogleAuthProvider(); prov.setCustomParameters({prompt:'select_account'});
+    try { await FB.Au.signInWithPopup(fbAuth, prov); closeModal(); }
     catch (e) {
-      if (['auth/popup-blocked', 'auth/operation-not-supported-in-this-environment'].includes(e.code)) fbAuth.signInWithRedirect(prov);
+      if (['auth/popup-blocked', 'auth/operation-not-supported-in-this-environment'].includes(e.code)) FB.Au.signInWithRedirect(fbAuth, prov);
       else if (!['auth/popup-closed-by-user', 'auth/cancelled-popup-request'].includes(e.code)) toast('Не удалось войти: ' + esc(e.code || 'ошибка'));
     }
   },
-  signOut(){ confirmBox('Ты выйдешь из аккаунта. Прогресс останется в облаке — войди снова, чтобы продолжить.', async () => { await fbAuth?.signOut(); toast('Ты вышел из аккаунта'); }); },
+  signOut(){ confirmBox('Ты выйдешь из аккаунта. Прогресс останется в облаке — войди снова, чтобы продолжить.', async () => { if (FB && fbAuth) await FB.Au.signOut(fbAuth); toast('Ты вышел из аккаунта'); }); },
   reset(){ confirmBox('Все книги, оценки, коины и покупки будут удалены без возможности восстановления.', () => { state = defaultState(); persist(); applyTheme(); render(); toast('Прогресс сброшен'); }); },
   qDone(el){ const q = dailyQuests().find(x => x.id === el.dataset.id); if (!q || qDone(q)) return;
     (state.quests.done[today()] ||= {})[q.id] = true; earn(q.r, 'квест выполнен'); render(); },
