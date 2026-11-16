@@ -4,13 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#09090b">
+<meta name="description" content="Tectonik — RPG в реальной жизни: выбирай направления (спорт, учёба, шахматы, деньги, намаз и другие), получай ежедневные квесты, монеты и награды. Прогресс сохраняется в облаке.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ulaa228-maker.github.io/lifequest/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Tectonik — RPG в реальной жизни">
+<meta property="og:description" content="Ежедневные квесты, монеты и награды по твоим целям. Работает на телефоне и компьютере.">
+<meta property="og:url" content="https://ulaa228-maker.github.io/lifequest/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Tectonik","url":"https://ulaa228-maker.github.io/lifequest/","applicationCategory":"LifestyleApplication","description":"RPG в реальной жизни: ежедневные квесты, монеты и награды по твоим целям.","inLanguage":"ru"}</script>
 <meta name="color-scheme" content="dark light">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="LifeQuest">
+<meta name="apple-mobile-web-app-title" content="Tectonik">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%238b5cf6'/%3E%3Ctext x='50' y='66' font-size='44' font-weight='800' text-anchor='middle' fill='white' font-family='sans-serif'%3ELQ%3C/text%3E%3C/svg%3E">
-<script>(function(){var m;try{m=localStorage.getItem('lifequest.mode')}catch(e){}if(m!=='light'&&m!=='dark')m=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.mode=m})()</script>
-<title>LifeQuest — RPG в реальной жизни</title>
+<script>(function(){var m;try{m=localStorage.getItem('lifequest.mode')}catch(e){}if(m==='auto')m=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';else if(m!=='dark')m='light';document.documentElement.dataset.mode=m})()</script>
+<title>Tectonik — RPG в реальной жизни</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <script>(function(){var w=console.warn;console.warn=function(){if(String(arguments[0]).indexOf('cdn.tailwindcss.com')>-1)return;return w.apply(console,arguments)}})()</script>
@@ -121,6 +129,14 @@
   html[data-mode=light] .peer:checked~.peer-checked\:bg-white\/10{background:color-mix(in srgb,var(--acc) 14%,transparent)}
   html,body{transition:background-color .25s,color .25s}
   body.onb #mnav,body.onb #dnav{display:none}
+  .btn,.btn-soft,.btn-ghost,.chip,.card{transition:transform .15s ease,background-color .2s,box-shadow .25s,border-color .2s,opacity .2s}
+  .btn:active,.btn-soft:active,.chip:active{transform:scale(.96)}a.card:active,button.card:active{transform:scale(.985)}
+  @media (hover:hover){a.card:hover{transform:translateY(-2px);box-shadow:0 10px 26px -14px rgba(0,0,0,.45)}}
+  #view>.fade{animation:none}#view.anim>.fade{animation:tkIn .38s cubic-bezier(.2,.8,.2,1) both}@keyframes tkIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .coinfloat{position:fixed;z-index:90;pointer-events:none;font-weight:800;color:#f59e0b;text-shadow:0 2px 8px rgba(0,0,0,.25);animation:cf .95s ease-out forwards}@keyframes cf{from{opacity:1;transform:translate(-50%,0) scale(.9)}to{opacity:0;transform:translate(-50%,-80px) scale(1.25)}}
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  .hold{position:relative;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}.hold::before{content:'';position:absolute;inset:0;width:0;background:rgba(255,255,255,.32)}.hold.holding::before{width:100%;transition:width 1.3s linear}
+  @media (max-width:767px){#mnav{left:12px;right:12px;bottom:calc(8px + env(safe-area-inset-bottom));border:1px solid rgba(255,255,255,.1);border-radius:26px;padding-bottom:0!important;box-shadow:0 8px 30px rgba(0,0,0,.45)}#mnav a{border-radius:20px;margin:4px}#mnav a.on{background:rgba(255,255,255,.08)}html[data-mode=light] #mnav{border-color:rgba(0,0,0,.08)}html[data-mode=light] #mnav a.on{background:rgba(0,0,0,.06)}}
   #mnav a,#dnav a,button{touch-action:manipulation}
   #mnav{z-index:40}
   header{padding-top:env(safe-area-inset-top)}
@@ -132,8 +148,8 @@
 <header class="sticky top-0 z-30 backdrop-blur-xl bg-[#09090b]/80 border-b border-white/5">
   <div class="max-w-6xl mx-auto px-3 sm:px-4 h-16 flex items-center gap-2 sm:gap-3">
     <a href="#home" class="flex items-center gap-2 font-bold tracking-tight">
-      <span class="acc-bg w-9 h-9 rounded-xl grid place-items-center text-sm font-extrabold">LQ</span>
-      <span class="hidden sm:inline">LifeQuest</span>
+      <img id="logoImg" alt="Tectonik" class="w-9 h-9 rounded-xl object-cover" style="box-shadow:0 2px 8px rgba(0,0,0,.25)">
+      <span class="hidden sm:inline">Tectonik</span>
     </a>
     <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[.04] border border-white/5">
       <i data-lucide="clock-3" class="w-4 h-4 acc-text"></i>
@@ -252,7 +268,7 @@ function defaultState(){
     sudoku:{solved:{easy:0,medium:0,hard:0,expert:0}, log:{}, hist:[], cur:null},
     school:subjects,
     quests:{done:{}, weekly:{}},
-    ach:{}, mine:[], skills:{}, onb:{done:false,picks:[],role:'',goal:'',money:'',custom:[],level:{}},
+    ach:{}, mine:[], skills:{}, onb:{done:false,picks:[],role:'',goal:'',money:'',custom:[],level:{},archive:[]},
     shop:{themes:['violet'], theme:'violet', pets:[], pet:null, petName:'', accs:[], eq:{head:null,face:null,neck:null}}
   };
 }
@@ -260,7 +276,7 @@ function migrate(s){
   const d = defaultState();
   const out = Object.assign(d, s || {});
   for (const k of ['profile','stats','skate','gym','ort','eng','sudoku','quests','shop']) out[k] = Object.assign(defaultState()[k], (s||{})[k] || {});
-  out.onb = Object.assign({done:false,picks:[],role:'',goal:'',money:'',custom:[],level:{}}, out.onb || {});
+  out.onb = Object.assign({done:false,picks:[],role:'',goal:'',money:'',custom:[],level:{},archive:[]}, out.onb || {});
   if (s && s.v && !s.onb) { out.onb.done = true; out.onb.picks = ['reading','skate','gym','ort','english','sudoku']; }
   out.skills = out.skills || {};
   out.shop.eq = Object.assign({head:null,face:null,neck:null}, out.shop.eq || {});
@@ -271,6 +287,7 @@ function migrate(s){
 
 /* ============ persistence ============ */
 const LS = 'lifequest.v1';
+const LOGO = 'data:image/jpeg;base64,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';
 let state = (() => { try { return migrate(JSON.parse(localStorage.getItem(LS))); } catch { return defaultState(); } })();
 let dbRef = null, sync = 'local', syncErr = '', pushT = null, hold = false, pendingRemote = null;
 const getSynced = () => { try { return +localStorage.getItem('lifequest.synced') || 0; } catch { return 0; } };
@@ -392,7 +409,7 @@ function paintSync(){
 const levelOf = e => Math.floor(Math.sqrt((e || 0) / 40)) + 1;
 function earn(n, why){
   const before = levelOf(state.stats.earned);
-  state.coins += n; state.stats.earned += n;
+  state.coins += n; state.stats.earned += n; floatCoin(n);
   toast(`<span class="text-amber-300 font-bold">+${n}</span> 🪙 ${esc(why)}`);
   const after = levelOf(state.stats.earned);
   if (after > before) setTimeout(() => toast(`✨ Новый уровень: <b>${after}</b>!`), 500);
@@ -533,6 +550,38 @@ const SVGI = {
   'moon':'<path d="M20 14.5A8.5 8.5 0 019.5 4a8.5 8.5 0 1010.5 10.5z"/>',
   'monitor':'<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>'
 };
+Object.assign(SVGI, {
+  'nav-home':'<path d="M3.5 11L12 4l8.5 7M5.5 9.5V20h13V9.5M10 20v-5h4v5"/>',
+  'nav-list':'<path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/>',
+  'nav-stats':'<path d="M5 20v-8M12 20V5M19 20v-11"/>',
+  'nav-trophy':'<path d="M8 4h8v5a4 4 0 01-8 0V4zM8 6H4.5c0 3 1.2 4.5 3.5 4.8M16 6h3.5c0 3-1.2 4.5-3.5 4.8M12 13v4M8.5 20h7M10 17h4"/>',
+  'crown2':'<path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5L3 8z"/>',
+  'shirt':'<path d="M8.5 4L3.5 7l2 4 2-1v10h9V10l2 1 2-4-5-3a3.5 3.5 0 01-7 0z"/>',
+  'chev':'<path d="M9 6l6 6-6 6"/>', 'chev-l':'<path d="M15 6l-6 6 6 6"/>',
+  'cap':'<path d="M2 9l10-5 10 5-10 5L2 9zM6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5M22 9v6"/>',
+  'archive':'<rect x="3" y="4" width="18" height="5" rx="1.5"/><path d="M5 9v10h14V9M10 13h4"/>'
+});
+Object.assign(SVGI, {
+  'clock-3':'<circle cx="12" cy="12" r="9"/><path d="M12 7v5h4"/>', 'coins':'<circle cx="9" cy="9" r="5.5"/><circle cx="15" cy="15" r="5.5"/>',
+  'check':'<path d="M5 12.5l4.5 4.5L19 7.5"/>', 'arrow-left':'<path d="M19 12H5M11 6l-6 6 6 6"/>',
+  'trash-2':'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>', 'rotate-ccw':'<path d="M3.5 12a8.5 8.5 0 102.5-6M3.5 4v4.5H8"/>',
+  'eraser':'<path d="M8 20h12M5 15l9-9 5 5-6.5 6.5H8L5 15z"/>', 'lightbulb':'<path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.9c.7.6 1 1.3 1 2.1h5c0-.8.3-1.5 1-2.1A6 6 0 0012 3z"/>',
+  'graduation-cap':'<path d="M2 9l10-5 10 5-10 5L2 9zM6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5M22 9v6"/>', 'chevron-down':'<path d="M6 9l6 6 6-6"/>',
+  'plus':'<path d="M12 5v14M5 12h14"/>', 'x':'<path d="M6 6l12 12M18 6L6 18"/>',
+  'scroll-text':'<path d="M7 4h11a1 1 0 011 1v12a3 3 0 01-3 3H6a3 3 0 003-3V5M9 9h6M9 13h6"/>', 'medal':'<circle cx="12" cy="14" r="5"/><path d="M8.5 3l3.5 6 3.5-6M12 12v4"/>',
+  'lock':'<rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 018 0v2.5"/>', 'trophy':'<path d="M8 4h8v5a4 4 0 01-8 0V4zM8 6H4.5c0 3 1.2 4.5 3.5 4.8M16 6h3.5c0 3-1.2 4.5-3.5 4.8M12 13v4M8.5 20h7M10 17h4"/>',
+  'info':'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>', 'store':'<path d="M4 9l1.5-5h13L20 9M4 9v11h16V9M4 9a3 3 0 006 0 3 3 0 006 0 3 3 0 004 0M10 20v-5h4v5"/>',
+  'cloud':'<path d="M7 18a4 4 0 01-.5-8 5.5 5.5 0 0110.5 1.5A3.5 3.5 0 0117 18H7z"/>', 'flame':'<path d="M12 21c3.5 0 6-2.5 6-5.5 0-3-2-4.5-3-7-1 1.5-1.8 2-2.5 2C13 8 12.3 5.5 10.5 3.5 10.5 7 6 9 6 15.5c0 3 2.5 5.5 6 5.5z"/>',
+  'library':'<path d="M5 4v16M10 4v16M15 5l4 15M3.5 20h17"/>', 'trending-up':'<path d="M3 17l6-6 4 4 8-8M15 7h6v6"/>', 'calendar-check':'<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M9 15l2 2 4-4"/>',
+  'drop':'<path d="M12 3.5C12 3.5 6 9.7 6 13.8a6 6 0 0012 0C18 9.7 12 3.5 12 3.5z"/>', 'stretch':'<circle cx="12" cy="5" r="2"/><path d="M12 7.5v6M6 4l6 6 6-6M9 21l3-7.5 3 7.5"/>',
+  'apple':'<path d="M12 8c-1.5-1.5-5-1.5-6 1.5-1 3 .5 8 3 10.5 1 1 2 .5 3 .5s2 .5 3-.5c2.5-2.5 4-7.5 3-10.5-1-3-4.5-3-6-1.5z"/><path d="M12 8c0-2 1-3.5 3-4"/>',
+  'camera':'<path d="M4 8h3l1.5-2.5h7L17 8h3v11H4V8z"/><circle cx="12" cy="13" r="3.5"/>', 'briefcase':'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2M3 13h18"/>',
+  'brain':'<path d="M9.5 4A3 3 0 006.500 7 3 3 0 004 10a3 3 0 001.500 5A3 3 0 009.500 19.500V4zM14.500 4A3 3 0 0117.500 7 3 3 0 0120 10a3 3 0 01-1.500 5 3 3 0 01-4 4.500V4z"/>',
+  'heart':'<path d="M12 20s-7.5-4.500-7.500-10A4.200 4.200 0 0112 7.500 4.200 4.200 0 0119.500 10c0 5.500-7.500 10-7.500 10z"/>', 'broom':'<path d="M14 4l-4 8M7 12h8l2.5 8h-13L7 12z"/>',
+  'calendar':'<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>', 'phone-off':'<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M4 4l16 16"/>'
+});
+function fixIcons(){ document.querySelectorAll('i[data-lucide]').forEach(el => { const n = el.getAttribute('data-lucide'); if (!SVGI[n]) return; const sp = document.createElement('span'); sp.className = 'inline-grid shrink-0 ' + (el.getAttribute('class') || ''); sp.innerHTML = svgI(SVGI[n], 'width:100%;height:100%'); el.replaceWith(sp); }); }
+let fiT = 0; new MutationObserver(() => { if (fiT) return; fiT = requestAnimationFrame(() => { fiT = 0; fixIcons(); }); }).observe(document.body, {childList:true, subtree:true});
 const icon = (n, cls = '') => { const sv = n === 'skate' ? SKATE_SVG : SVGI[n] ? svgI(SVGI[n]) : null; return sv ? `<span class="inline-grid ${cls}">${cls ? sv.replace('<svg ', '<svg style="width:100%;height:100%" ') : sv}</span>` : `<i data-lucide="${n}" class="${cls}"></i>`; };
 function ring(p, s = 56, w = 5){
   const r = (s - w) / 2, c = 2 * Math.PI * r;
@@ -599,14 +648,26 @@ const GEN = [
   {id:'run',t:'Бег и ходьба',i:'shoe',h:'#f97316',tasks:['Пройди 7000 шагов','Побегай 15–20 минут','Растяжка 10 минут','Прогулка после еды']},
   {id:'cook',t:'Готовка',i:'pot',h:'#facc15',tasks:['Приготовь новое блюдо','Приготовь полезный ужин сам','Заготовь еду на завтра','Выучи один кулинарный приём']},
   {id:'sleep',t:'Режим сна',i:'sleep',h:'#818cf8',tasks:['Ложись до 23:00','Выключи экран за 30 минут до сна','Проснись в одно и то же время','Не пей кофе после обеда']},
+  {id:'water',t:'Питьё воды',i:'drop',h:'#38bdf8',tasks:['Выпей стакан воды сразу после пробуждения','Выпей 2 литра воды за день','Замени сладкий напиток водой','Носи с собой бутылку воды']},
+  {id:'stretch',t:'Растяжка и йога',i:'stretch',h:'#34d399',tasks:['Сделай растяжку 10 минут','Размяться после долгого сидения','Сделай утреннюю зарядку','Постой в планке сколько сможешь']},
+  {id:'food',t:'Правильное питание',i:'apple',h:'#84cc16',tasks:['Съешь овощи или фрукты','Не ешь сладкое сегодня','Приготовь или выбери полезный обед','Запиши, что съел за день']},
+  {id:'photo',t:'Фотография',i:'camera',h:'#f59e0b',tasks:['Сделай 5 осознанных кадров','Изучи один приём композиции','Обработай одну фотографию','Найди красивый кадр по пути']},
+  {id:'career',t:'Карьера и навыки',i:'briefcase',h:'#60a5fa',tasks:['Изучи профессиональный навык 20 минут','Сделай один шаг к цели в работе','Обнови резюме или профиль','Напиши полезному человеку в своей сфере']},
+  {id:'memory',t:'Память',i:'brain',h:'#e879f9',tasks:['Выучи 5 новых слов или фактов','Повтори вчерашнее наизусть','Выучи стих или аят','Расскажи кому-то то, что узнал']},
+  {id:'kind',t:'Добрые дела',i:'heart',h:'#fb7185',tasks:['Помоги кому-то без просьбы','Позвони родным','Скажи доброе слово человеку','Сделай что-то полезное для дома']},
+  {id:'clean',t:'Порядок и уборка',i:'broom',h:'#2dd4bf',tasks:['Заправь постель','Убери рабочее место','Разбери один ящик или полку','Помой посуду сразу после еды']},
+  {id:'plan',t:'Планирование дня',i:'calendar',h:'#a3e635',tasks:['Запиши 3 главные задачи на день','Распланируй завтрашний день вечером','Подведи итоги дня','Раздели большую цель на шаги']},
+  {id:'detox',t:'Меньше соцсетей',i:'phone-off',h:'#94a3b8',tasks:['Проведи час без телефона','Удали одно лишнее приложение или подписки','Не заходи в соцсети до обеда','Замени скролл книгой или прогулкой']},
   {id:'namaz',t:'Намаз',i:'mosque',h:'#34d399',tasks:['Соверши обязательные намазы вовремя','Прочитай утренние и вечерние азкары','Прочитай несколько аятов Корана с переводом','Сделай дуа за близких','Изучи порядок омовения и намаза','Соверши намаз в джамаате']},
   {id:'write',t:'Писательство',i:'pen',h:'#c084fc',tasks:['Пиши 15 минут без остановки','Запиши идею дня','Перечитай и улучши вчерашний текст','Опиши свой день тремя абзацами']}
 ];
+const CATS = [['sport', '💪', 'Здоровье и спорт', ['gym', 'run', 'skate', 'sleep', 'water', 'stretch', 'food']], ['learn', '📚', 'Учёба и знания', ['reading', 'ort', 'english', 'code', 'memory']], ['mind', '🧠', 'Ум и логика', ['chess', 'sudoku']], ['create', '🎨', 'Творчество', ['draw', 'music', 'write', 'photo', 'cook']], ['money', '💰', 'Деньги и карьера', ['money', 'career']], ['soul', '🕌', 'Дух и душа', ['namaz', 'meditate', 'kind']], ['life', '🏠', 'Быт и порядок', ['clean', 'plan', 'detox']], ['mine', '⭐', 'Своё', []]];
+const catOf = id => (CATS.find(c => c[3].includes(id)) || CATS[CATS.length - 1])[0];
 const GENM = {};
 const LV = {1:'Начинающий', 2:'Средний', 3:'Сложный'}, LVT = {1:'Начинающий', 2:'Средний · уже делаю', 3:'Сложный · регулярно'}, LVP = {1:.45, 2:.75, 3:1};
 const lvOf = id => (state.onb.level || {})[id];
 const wTarget = id => [3, 4, 6][(lvOf(id) || 2) - 1], tCount = id => [2, 3, 4][(lvOf(id) || 2) - 1];
-const lvRow = id => { const cur = lvOf(id); return `<div class="flex items-center gap-1.5 flex-wrap"><span class="text-xs text-zinc-500 mr-1">Сложность:</span>${[1, 2, 3].map(l => `<button data-a="setLvl" data-id="${id}" data-l="${l}" class="chip !py-1 !px-2.5 text-xs ${cur === l ? 'on' : ''}">${LV[l]}</button>`).join('')}</div>`; };
+const lvRow = id => { const cur = lvOf(id); return `<div class="flex items-center gap-1.5 flex-wrap"><span class="text-xs text-zinc-500 mr-1">Сложность:</span>${[1, 2, 3].map(l => `<button data-a="setLvl" data-id="${id}" data-l="${l}" class="chip !py-1 !px-2.5 text-xs ${cur === l ? 'on' : ''}">${LV[l]}</button>`).join('')}<button data-a="archive" data-id="${id}" class="btn-ghost text-xs px-2 py-1 rounded-lg ml-auto">В архив</button></div>`; };
 const parseNum = v => parseFloat(String(v || '').replace(/\s/g, '').replace(',', '.').replace(/[^\d.]/g, '')) || 0;
 const sk = id => (state.skills[id] ||= {days:{}, done:{}, goal:'', target:'', saved:0});
 const genList = id => { const g = GENM[id], raw = typeof g.tasks === 'function' ? g.tasks(state.onb.role) : g.tasks; return raw.map(x => Array.isArray(x) ? x : [x, 15]); };
@@ -632,34 +693,92 @@ V.skill = id => {
   <div class="card p-5 mt-3 flex gap-3"><div class="text-2xl">💡</div><p class="text-sm text-zinc-400">${esc(tip)}</p></div></div>`;
 };
 
+/* ============ статистика, серия, архив, верх главной ============ */
+const shiftKey = (k, n) => { const d = new Date(k + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+const pl = (n, f) => f[n % 10 === 1 && n % 100 !== 11 ? 0 : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 1 : 2];
+const cntK = k => Object.keys((state.quests.done || {})[k] || {}).length + ((state.ort.days || {})[k] ? 1 : 0) + ((state.gym.workouts || {})[k] ? 1 : 0) + Object.values(state.skills || {}).filter(v => v.days && v.days[k]).length;
+const actKeys = () => { const set = new Set(); const add = k => { if (cntK(k)) set.add(k); }; Object.keys(state.quests.done || {}).forEach(add); Object.keys(state.ort.days || {}).forEach(add); Object.keys(state.gym.workouts || {}).forEach(add); Object.values(state.skills || {}).forEach(v => Object.keys(v.days || {}).forEach(add)); return set; };
+function streakInfo(){
+  const set = actKeys(); let k = today(), now = 0; if (!set.has(k)) k = shiftKey(k, -1);
+  while (set.has(k) && now < 4000) { now++; k = shiftKey(k, -1); }
+  const ks = [...set].sort(); let best = 0, run = 0, prev = null;
+  ks.forEach(x => { run = prev && shiftKey(prev, 1) === x ? run + 1 : 1; best = Math.max(best, run); prev = x; });
+  return {now, best, set};
+}
+function homeTop(){
+  const {now, set} = streakInfo(), t = today(), wk = weekDays(), L = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
+  const tile = (n, c) => `<div class="w-11 h-11 rounded-2xl bg-white grid place-items-center shrink-0" style="color:${c};box-shadow:0 4px 10px rgba(0,0,0,.2)"><span class="w-6 h-6">${svgI(SVGI[n], 'width:100%;height:100%')}</span></div>`;
+  const tq = dailyQuests(), dn = tq.filter(qDone).length, all = tq.length > 0 && dn === tq.length, hr = new Date().getHours(), gr = hr < 5 ? 'Доброй ночи' : hr < 12 ? 'Доброе утро' : hr < 18 ? 'Добрый день' : 'Добрый вечер';
+  const today_ = `<div class="card p-5 mt-4"><div class="text-sm text-zinc-500">${gr}, ${esc(state.profile.name)}</div><div class="text-xl font-extrabold mt-1">${all ? 'Все задания на сегодня выполнены 🎉' : `Сегодня: ${dn} из ${tq.length}`}</div><div class="mt-3">${bar(tq.length ? dn / tq.length : 0, '')}</div><a href="#quests" class="btn w-full mt-4 text-sm">${all ? 'Открыть привычки' : 'К заданиям на сегодня'}</a></div>`;
+  return `${today_}<a href="#shop" class="mt-3 flex items-center justify-between gap-3 rounded-3xl p-5" style="background:linear-gradient(135deg,#d6347f,#b83280);color:#fff"><div><div class="text-xl font-extrabold">Магазин</div><div class="text-sm" style="opacity:.85">Обнови свой стиль</div></div><div class="flex gap-2">${tile('crown2', '#f5b942')}${tile('shirt', '#6366f1')}${tile('chev', '#d6347f')}</div></a>
+  <div class="card p-5 mt-3"><div class="flex items-center gap-3"><div class="text-4xl leading-none">🔥</div><div class="flex-1"><span class="text-3xl font-extrabold tabular-nums">${now}</span> <span class="text-sm text-zinc-500">${pl(now, ['огонёк', 'огонька', 'огоньков'])}</span></div><a href="#stats" class="btn-ghost text-xs px-2.5 py-1.5 rounded-lg">Статистика</a></div>
+  <div class="grid grid-cols-7 gap-2 mt-4 text-center">${wk.map((k, i) => { const on = set.has(k), td = k === t; return `<div><div class="mx-auto w-9 h-9 sm:w-10 sm:h-10 rounded-full grid place-items-center ${on ? 'acc-bg text-white' : 'bg-white/10'}" style="${td && !on ? 'box-shadow:inset 0 0 0 2.5px var(--acc)' : ''}">${on ? `<span class="w-4 h-4">${svgI('<path d="M5 12.5l4.5 4.5L19 7.5"/>', 'width:100%;height:100%')}</span>` : ''}</div><div class="text-[11px] mt-1.5 ${td ? 'acc-text font-bold' : 'text-zinc-500'}">${L[i]}</div></div>`; }).join('')}</div></div>`;
+}
+V.stats = () => {
+  const {now, best, set} = streakInfo(), t = today(), d28 = Array.from({length:28}, (_, i) => shiftKey(t, -i));
+  const n = d28.filter(k => set.has(k)).length, pct = Math.round(n / 28 * 100), cat = {};
+  d28.forEach(k => Object.keys((state.quests.done || {})[k] || {}).forEach(id => { const c = id.split(':')[1]; cat[c] = (cat[c] || 0) + 1; }));
+  const mods = state.onb.picks.map(id => MOD[id]).filter(Boolean), mx = Math.max(1, ...mods.map(m => cat[m.id] || 0));
+  const start = shiftKey(weekDays()[0], -77), cells = Array.from({length:84}, (_, i) => shiftKey(start, i));
+  const heat = cells.map(k => { const c = k > t ? -1 : cntK(k), a = c <= 0 ? 0 : c === 1 ? 35 : c === 2 ? 65 : 100; return `<div class="aspect-square rounded-[4px]" style="${c < 0 ? '' : a ? `background:color-mix(in srgb,var(--acc) ${a}%,transparent)` : 'background:rgba(127,127,127,.15)'}"></div>`; }).join('');
+  return `<div class="fade"><div class="flex items-end justify-between mb-4"><h1 class="text-2xl font-extrabold">Статистика</h1><span class="text-xs text-zinc-500">последние 28 дней</span></div>
+  <div class="grid grid-cols-2 gap-3"><div class="card p-4"><div class="label">Активных дней</div><div class="text-3xl font-extrabold mt-1 tabular-nums">${pct}%</div><div class="text-xs text-zinc-500">${n} из 28</div><div class="mt-3">${bar(pct / 100, '')}</div></div>
+  <div class="card p-4"><div class="label">Серия</div><div class="text-3xl font-extrabold mt-1 tabular-nums">${now} 🔥</div><div class="text-xs text-zinc-500">рекорд: ${best}</div></div></div>
+  <div class="card p-4 mt-3"><div class="label mb-3">Карта активности · 12 недель</div><div class="grid grid-rows-7 grid-flow-col gap-1" style="grid-template-rows:repeat(7,1fr)">${heat}</div></div>
+  <div class="card p-4 mt-3"><div class="label mb-3">По направлениям</div><div class="space-y-3">${mods.map(m => `<div class="flex items-center gap-3"><div class="ico !w-8 !h-8 !rounded-lg" style="--h:${m.h}">${icon(m.i)}</div><div class="flex-1 min-w-0"><div class="flex justify-between text-sm"><span class="font-semibold truncate">${esc(m.t)}</span><span class="text-zinc-500 tabular-nums">${cat[m.id] || 0}</span></div><div class="mt-1.5">${bar((cat[m.id] || 0) / mx, '')}</div></div></div>`).join('')}</div></div>
+  <a href="#study" class="card p-4 mt-3 flex items-center gap-3"><div class="ico !w-11 !h-11 !rounded-xl" style="--h:#38bdf8">${icon('cap')}</div><div class="flex-1"><div class="font-bold">Учёба</div><div class="text-xs text-zinc-500">Домашние задания, предметы и оценки</div></div><span class="w-5 h-5 text-zinc-500">${svgI(SVGI.chev, 'width:100%;height:100%')}</span></a>
+  <a href="#archive" class="card p-4 mt-3 flex items-center gap-3"><div class="ico !w-11 !h-11 !rounded-xl" style="--h:#a78bfa">${icon('archive')}</div><div class="flex-1"><div class="font-bold">Архив направлений</div><div class="text-xs text-zinc-500">${(state.onb.archive || []).length} в архиве</div></div><span class="w-5 h-5 text-zinc-500">${svgI(SVGI.chev, 'width:100%;height:100%')}</span></a></div>`;
+};
+V.archive = () => { const a = (state.onb.archive || []).map(id => MOD[id]).filter(Boolean);
+  return `<div class="fade"><div class="flex items-center gap-3 mb-5"><a href="#stats" class="btn-ghost w-10 h-10 rounded-xl grid place-items-center" aria-label="Назад">${icon('chev-l', 'w-5 h-5')}</a><div><h1 class="text-2xl font-extrabold">Архив направлений</h1><p class="text-xs text-zinc-500">Прогресс сохраняется, вернуть можно в любой момент</p></div></div>
+  ${a.length ? `<div class="grid gap-2.5">${a.map(m => `<div class="card p-4 flex items-center gap-3"><div class="ico !w-11 !h-11 !rounded-xl" style="--h:${m.h}">${icon(m.i)}</div><div class="flex-1 font-semibold">${esc(m.t)}</div><button data-a="unarchive" data-id="${m.id}" class="btn-soft !py-2 text-xs">Вернуть</button></div>`).join('')}</div>` : `<div class="card p-8 text-center text-sm text-zinc-500">В архиве пусто. Направление можно убрать со своей страницы кнопкой «В архив».</div>`}</div>`; };
+
 /* --- онбординг --- */
 let ob = null, onbOpen = false;
-function obInit(){ const o = state.onb; ob = {step:0, name:state.profile.name === 'Игрок' ? '' : state.profile.name, picks:new Set(o.picks), role:o.role || '', goal:o.goal || '', money:(state.skills.money && state.skills.money.target) || '', custom:[...(o.custom || [])], lvl:{...(o.level || {})}}; }
+function obInit(){ const o = state.onb; ob = {step:0, name:state.profile.name === 'Игрок' ? '' : state.profile.name, picks:new Set(o.picks), role:o.role || '', goal:o.goal || '', money:(state.skills.money && state.skills.money.target) || '', custom:[...(o.custom || [])], cat:'sport', lvl:{...(o.level || {})}, focus:o.focus || '', time:o.time || '', pre:(o.picks || []).length > 0}; }
 const obAll = () => [...MODS, ...GEN, ...ob.custom.map(c => ({id:c.id, t:c.t, i:'star', h:'#f472b6'}))];
+const FOCUS = [['health', '💪', 'Стать здоровее и сильнее', ['gym', 'run', 'sleep']], ['study', '📚', 'Лучше учиться', ['ort', 'english', 'reading']], ['money', '💰', 'Заработать и накопить', ['money', 'code']], ['discipline', '⏰', 'Дисциплина и режим', ['sleep', 'meditate', 'reading']], ['faith', '🕌', 'Духовное развитие', ['namaz', 'reading']]];
+const TIME_OPTS = [['10', '⚡', '10 минут в день'], ['20', '🙂', '20 минут'], ['40', '💪', '40 минут'], ['60', '🔥', 'Час и больше']];
+const ROLE_E = {school:'🎒', student:'🎓', job:'💼', free:'🧑‍💻', seek:'🔎'};
+const defLvl = () => ({10:1, 20:2, 40:2, 60:3})[ob.time] || 1;
+function obEnter(){ if (ob.step === 5 && !ob.pre && !ob.picks.size) { const f = FOCUS.find(x => x[0] === ob.focus); (f ? f[3] : []).forEach(id => { ob.picks.add(id); ob.lvl[id] = defLvl(); }); ob.pre = true; } }
 V.onboard = () => {
-  const st = ob.step, n = ob.picks.size, CHK = svgI('<path d="M5 12.5l4.5 4.5L19 7.5"/>', 'width:100%;height:100%');
+  const st = ob.step, n = ob.picks.size, TOT = 7, CHK = svgI('<path d="M5 12.5l4.5 4.5L19 7.5"/>', 'width:100%;height:100%');
   const tile = m => { const on = ob.picks.has(m.id), l = ob.lvl[m.id] || 1; return `<div class="card p-3 ${on ? 'acc-border' : ''}">
     <button data-a="obPick" data-id="${m.id}" class="w-full flex items-center gap-2.5 text-left"><div class="ico !w-10 !h-10 !rounded-xl" style="--h:${m.h}">${icon(m.i)}</div><span class="flex-1 min-w-0 text-[13px] sm:text-sm font-semibold leading-tight break-words">${esc(m.t)}</span>${on ? `<span class="w-5 h-5 acc-text shrink-0">${CHK}</span>` : ''}</button>
     ${on ? `<div class="grid gap-1.5 mt-3">${[1, 2, 3].map(v => `<button data-a="obLvl" data-id="${m.id}" data-l="${v}" class="chip !py-1.5 !px-2 text-xs text-left ${l === v ? 'on' : ''}">${LVT[v]}</button>`).join('')}</div>` : ''}</div>`; };
   const bar = inner => `<div class="sticky bottom-0 z-10 -mx-4 px-4 pt-3 mt-5 bg-[#09090b]/90 backdrop-blur" style="padding-bottom:calc(.75rem + env(safe-area-inset-bottom))">${inner}</div>`;
+  const opt = (k, v, e, t, sel) => `<button data-a="obOpt" data-k="${k}" data-v="${v}" class="card p-4 w-full flex items-center gap-4 text-left ${sel ? 'acc-border' : ''}"><span class="text-2xl w-9 text-center">${e}</span><span class="font-semibold">${t}</span></button>`;
+  const head = (h, sub) => `<h1 class="text-2xl sm:text-3xl font-extrabold">${h}</h1><p class="text-sm text-zinc-400 mt-2">${sub}</p>`;
+  const next = (t = 'Дальше', dis = false) => bar(`<button data-a="obNext" class="btn w-full" ${dis ? 'disabled style="opacity:.45"' : ''}>${t}</button>`);
   let body;
-  if (st === 0) body = `<h1 class="text-2xl sm:text-4xl font-extrabold">Давай настроим LifeQuest под тебя 👋</h1><p class="text-sm sm:text-base text-zinc-400 mt-2">Выбери, что хочешь развивать, — квесты и цели будут только по этому. Это займёт минуту.</p>
-    <div class="mt-6 grid sm:grid-cols-3 gap-2">${[['1', 'Выбери направления', 'от 3 до 10'], ['2', 'Укажи сложность', 'начинающий, средний, сложный'], ['3', 'Получай задания', 'каждый день']].map(([a, b, c]) => `<div class="card p-3 flex items-center gap-3"><div class="ico !w-9 !h-9 !rounded-xl font-extrabold" style="--h:#8b5cf6">${a}</div><div class="min-w-0"><div class="text-sm font-semibold">${b}</div><div class="text-xs text-zinc-500">${c}</div></div></div>`).join('')}</div>
-    <label class="block mt-6"><span class="label">Как тебя зовут?</span><input data-ob="name" value="${esc(ob.name)}" maxlength="24" placeholder="Имя" class="inp w-full mt-1"></label>
-    ${FB_ON && !gUser ? `<button data-a="signIn" class="w-full mt-4 flex items-center justify-center gap-2.5 rounded-xl py-2.5 bg-white text-zinc-900 border border-zinc-300 font-semibold text-sm">${G_LOGO}У меня уже есть аккаунт — войти через Google</button>` : ''}
-    ${bar('<button data-a="obNext" class="btn w-full">Дальше</button>')}`;
-  else if (st === 1) body = `<h1 class="text-2xl sm:text-3xl font-extrabold">Что хочешь развивать?</h1><p class="text-sm text-zinc-400 mt-2">Нажми на плитку, чтобы выбрать, и укажи свою сложность. Нужно от 3 до 10 направлений. Выбрано: <b class="${n >= 3 ? 'acc-text' : ''}">${n}</b> из 10</p>
+  if (st === 0) body = `<div class="text-center pt-2"><img src="${LOGO}" alt="Tectonik" class="mx-auto w-28 h-28 rounded-[28px] object-cover" style="box-shadow:0 18px 40px -12px rgba(0,0,0,.45)"><h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight mt-6">Tectonik</h1><p class="text-lg text-zinc-400 mt-2">Прокачивай себя каждый день</p><p class="text-sm text-zinc-500 mt-3 max-w-md mx-auto">Ежедневные квесты, серии, монеты и награды по твоим целям. Маленькие шаги складываются в большие перемены.</p></div>
+    <div class="mt-6 grid grid-cols-3 gap-2 text-center">${[['27+', 'направлений'], ['3', 'уровня сложности'], ['0 ₽', 'бесплатно']].map(([a, b]) => `<div class="card p-3"><div class="text-xl font-extrabold acc-text">${a}</div><div class="text-[11px] text-zinc-500 mt-0.5">${b}</div></div>`).join('')}</div>
+    <div class="mt-4 grid sm:grid-cols-2 gap-2.5">${[['🎯', 'Свои цели', 'Выбери направления из 7 категорий: спорт, учёба, творчество, деньги и другие'], ['🔥', 'Серия и квесты', 'Каждый день новые задания по твоему уровню и времени'], ['🏆', 'Награды и уровни', 'Монеты, достижения, магазин и компаньон'], ['☁️', 'Везде с тобой', 'Прогресс хранится в облаке: телефон и компьютер синхронизируются']].map(([e, t, d]) => `<div class="card p-4 flex gap-3"><span class="text-2xl">${e}</span><div><div class="text-sm font-bold">${t}</div><div class="text-xs text-zinc-500 mt-0.5">${d}</div></div></div>`).join('')}</div>
+    ${FB_ON && !gUser ? `<button data-a="signIn" class="w-full mt-5 flex items-center justify-center gap-2.5 rounded-xl py-2.5 bg-white text-zinc-900 border border-zinc-300 font-semibold text-sm">${G_LOGO}У меня уже есть аккаунт — войти через Google</button>` : ''}
+    <button data-a="about" class="block mx-auto mt-3 text-xs acc-text font-semibold">Что это за сайт?</button>${next('Начать')}`;
+  else if (st === 1) body = head('Как тебя зовут?', 'Так мы будем к тебе обращаться.') + `<input data-ob="name" value="${esc(ob.name)}" maxlength="24" placeholder="Имя" class="inp w-full mt-6 !text-lg !py-4">${next()}`;
+  else if (st === 2) body = head('Что сейчас для тебя главное?', 'Подберём направления под твою цель.') + `<div class="grid gap-2.5 mt-6">${FOCUS.map(f => opt('focus', f[0], f[1], f[2], ob.focus === f[0])).join('')}</div>`;
+  else if (st === 3) body = head('Сколько времени в день готов уделять?', 'От этого зависит сложность твоих заданий.') + `<div class="grid gap-2.5 mt-6">${TIME_OPTS.map(t => opt('time', t[0], t[1], t[2], ob.time === t[0])).join('')}</div>`;
+  else if (st === 4) body = head('Кто ты сейчас?', 'Задания будут точнее подходить тебе.') + `<div class="grid gap-2.5 mt-6">${ROLES.map(([i, t]) => opt('role', i, ROLE_E[i], t, ob.role === i)).join('')}</div>`;
+  else if (st === 5) { const cc = CATS.map(c => [c, obAll().filter(m => catOf(m.id) === c[0])]).filter(([c, l]) => l.length || c[0] === 'mine'), cur = cc.find(([c]) => c[0] === ob.cat) || cc[0], cnt = l => l.filter(m => ob.picks.has(m.id)).length;
+    body = head('Что хочешь развивать?', `${ob.focus ? 'Мы подобрали направления под твою цель, измени как хочешь. ' : ''}Нужно от 3 до 10. Выбрано: <b class="${n >= 3 ? 'acc-text' : ''}">${n}</b> из 10`) + `
+    <div class="flex gap-2 overflow-x-auto noscroll -mx-4 px-4 mt-4 pb-1">${cc.map(([c, l]) => `<button data-a="obCat" data-c="${c[0]}" class="chip shrink-0 ${cur[0][0] === c[0] ? 'on' : ''}">${c[1]} ${c[2]}${cnt(l) ? ` <b class="acc-text">${cnt(l)}</b>` : ''}</button>`).join('')}</div>
     <div class="card p-3 mt-3 text-xs text-zinc-400 space-y-1"><div><b class="text-zinc-200">Начинающий</b> — только начинаю</div><div><b class="text-zinc-200">Средний</b> — уже этим занимаюсь</div><div><b class="text-zinc-200">Сложный</b> — хочу заниматься регулярно</div></div>
-    <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 mt-3 items-start">${obAll().map(tile).join('')}</div>
-    <div class="flex gap-2 mt-3"><input id="obCustom" maxlength="24" placeholder="Своё направление" class="inp flex-1 min-w-0"><button data-a="obAddCustom" class="btn-soft shrink-0">Добавить</button></div>
-    ${bar(`<div class="flex gap-2"><button data-a="obBack" class="btn-soft">Назад</button><button data-a="obNext" class="btn flex-1" ${n < 3 ? 'disabled style="opacity:.45"' : ''}>${n < 3 ? `Выбери ещё ${3 - n}` : 'Дальше'}</button></div>`)}`;
-  else body = `<h1 class="text-2xl sm:text-3xl font-extrabold">Расскажи о себе</h1><p class="text-sm text-zinc-400 mt-2">Так задания будут точнее подходить тебе.</p>
-    <div class="label mt-5">Кто ты сейчас?</div><div class="flex flex-wrap gap-2 mt-2">${ROLES.map(([i, t]) => `<button data-a="obRole" data-r="${i}" class="chip ${ob.role === i ? 'on' : ''}">${t}</button>`).join('')}</div>
-    <label class="block mt-4"><span class="label">Главная цель на ближайшие 3 месяца</span><input data-ob="goal" value="${esc(ob.goal)}" maxlength="140" placeholder="Например: стать сильнее и найти подработку" class="inp w-full mt-1"></label>
-    ${ob.picks.has('money') ? `<label class="block mt-4"><span class="label">Сколько хочешь заработать или накопить?</span><input data-ob="money" value="${esc(ob.money)}" maxlength="30" placeholder="Например: 50 000 сом" class="inp w-full mt-1"></label>` : ''}
-    ${bar('<div class="flex gap-2"><button data-a="obBack" class="btn-soft">Назад</button><button data-a="obFinish" class="btn flex-1">Начать 🚀</button></div>')}`;
-  return `<div class="fade max-w-xl sm:max-w-3xl lg:max-w-4xl mx-auto pb-6"><div class="flex items-center gap-3 mb-6"><div class="flex-1 flex gap-1.5">${[0, 1, 2].map(i => `<span class="h-1.5 flex-1 rounded-full ${i <= st ? 'acc-bg' : 'bg-white/10'}"></span>`).join('')}</div>${onbOpen ? '<button data-a="obCancel" class="btn-ghost text-xs px-3 py-1.5 rounded-lg">Отмена</button>' : ''}</div>${body}</div>`;
+    <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 mt-3 items-start">${cur[1].map(tile).join('') || '<div class="col-span-2 text-sm text-zinc-500 py-4">Здесь появятся твои собственные направления.</div>'}</div>
+    <div class="flex gap-2 mt-3"><input id="obCustom" maxlength="24" placeholder="Своё направление" class="inp flex-1 min-w-0"><button data-a="obAddCustom" class="btn-soft shrink-0">Добавить</button></div>${next(n < 3 ? `Выбери ещё ${3 - n}` : 'Дальше', n < 3)}`; }
+  else if (st === 6) body = head('Какая у тебя цель?', 'Главное, чего хочешь добиться за ближайшие 3 месяца.') + `<input data-ob="goal" value="${esc(ob.goal)}" maxlength="140" placeholder="Например: стать сильнее и найти подработку" class="inp w-full mt-6">
+    ${ob.picks.has('money') ? `<label class="block mt-4"><span class="label">Сколько хочешь заработать или накопить?</span><input data-ob="money" value="${esc(ob.money)}" maxlength="30" placeholder="Например: 50 000 сом" class="inp w-full mt-1"></label>` : ''}${next()}`;
+  else body = head('Твой план готов 🎯', `${n} направлений · около ${ob.time || 20} минут в день`) + `<div class="grid gap-2 mt-5">${[...ob.picks].map(id => obAll().find(m => m.id === id)).filter(Boolean).map(m => `<div class="card p-3 flex items-center gap-3"><div class="ico !w-9 !h-9 !rounded-xl" style="--h:${m.h}">${icon(m.i)}</div><div class="flex-1 text-sm font-semibold">${esc(m.t)}</div><span class="text-xs text-zinc-500">${LV[ob.lvl[m.id] || 1]}</span></div>`).join('')}</div>
+    <div class="card p-5 mt-5 text-center"><div class="text-3xl">🤝</div><div class="font-bold mt-2">Договор с самим собой</div><p class="text-sm text-zinc-400 mt-2">Я обещаю заниматься каждый день, а если сорвусь, не бросать, а вернуться на следующий день.</p></div>
+    ${bar('<button data-hold class="btn hold w-full">Удерживай, чтобы согласиться</button><p class="text-[11px] text-zinc-500 text-center mt-2">Нажми и держи кнопку пару секунд</p>')}`;
+  return `<div class="fade max-w-xl sm:max-w-3xl lg:max-w-4xl mx-auto pb-6"><div class="flex items-center gap-3 mb-6">${st > 0 ? `<button data-a="obBack" class="btn-ghost w-10 h-10 rounded-xl grid place-items-center shrink-0" aria-label="Назад">${icon('chev-l', 'w-5 h-5')}</button>` : '<span class="w-10 shrink-0"></span>'}<div class="flex-1">${bar_(st / TOT)}</div>${onbOpen ? '<button data-a="obCancel" class="btn-ghost text-xs px-3 py-1.5 rounded-lg">Отмена</button>' : ''}</div>${body}</div>`;
 };
+const bar_ = p => `<div class="h-1.5 rounded-full bg-white/10 overflow-hidden"><div class="h-full rounded-full acc-bg" style="width:${Math.round(p * 100)}%;transition:width .3s"></div></div>`;
+let holdT = null;
+document.addEventListener('pointerdown', e => { const b = e.target.closest && e.target.closest('[data-hold]'); if (!b) return; b.classList.add('holding'); clearTimeout(holdT); holdT = setTimeout(() => { holdT = null; if (navigator.vibrate) navigator.vibrate(30); A.obFinish(); }, 1300); });
+['pointerup', 'pointercancel'].forEach(ev => document.addEventListener(ev, () => { if (!holdT) return; clearTimeout(holdT); holdT = null; document.querySelectorAll('[data-hold].holding').forEach(x => x.classList.remove('holding')); }, true));
+document.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('[data-hold]')) e.preventDefault(); });
 document.addEventListener('input', e => { const t = e.target.closest && e.target.closest('[data-ob]'); if (t && ob) ob[t.dataset.ob] = t.value; });
 
 
@@ -696,6 +815,7 @@ V.home = () => {
         <a href="#shop" class="btn mt-4 text-sm">В магазин</a>`}
     </div>
   </section>
+  ${homeTop()}
   ${state.onb.goal ? `<div class="card p-4 mt-4"><div class="label">Моя цель</div><div class="text-sm font-semibold mt-1">${esc(state.onb.goal)}</div></div>` : ''}
   ${sectionTitle('Главное меню', `<button data-a="onbRedo" class="text-xs acc-text font-semibold">Изменить</button>`)}
   <section class="grid grid-cols-2 lg:grid-cols-3 gap-3">
@@ -705,15 +825,16 @@ V.home = () => {
     </a>`).join('')}
   </section>
   ${sectionTitle('Квесты на сегодня', `<a href="#quests" class="text-xs acc-text font-semibold">Все квесты →</a>`)}
-  <section class="card divide-y divide-white/5">${q.slice(0, 3).map(questRow).join('')}</section>
+  <section class="grid gap-2.5">${q.slice(0, 3).map(questRow).join('')}</section>
+  <div class="text-center mt-6"><button data-a="about" class="btn-ghost text-xs px-3 py-2 rounded-lg">О сайте: что такое Tectonik</button></div>
   </div>`;
 };
 function questRow(x){
-  const d = qDone(x);
-  return `<div class="flex items-center gap-3 p-4 ${d ? 'opacity-60' : ''}">
-    <div class="ico !w-9 !h-9 !rounded-xl" style="--h:${QHUE[x.cat]}">${icon(QICON[x.cat])}</div>
-    <div class="flex-1 min-w-0"><div class="text-sm font-semibold ${d ? 'line-through' : ''}">${esc(x.t)}</div><div class="text-xs text-amber-300/80 mt-0.5">+${x.r} 🪙</div></div>
-    ${d ? `<span class="text-xs font-bold acc-text flex items-center gap-1"><i data-lucide="check" class="w-4 h-4"></i>Готово</span>` : `<button data-a="qDone" data-id="${x.id}" class="btn-soft !py-2 text-xs">Выполнил</button>`}
+  const d = qDone(x), h = QHUE[x.cat] || '#8b5cf6';
+  return `<div class="flex items-center gap-3 p-4 rounded-3xl ${d ? 'opacity-60' : ''}" style="background:color-mix(in srgb,${h} 13%,transparent);border:1px solid color-mix(in srgb,${h} 30%,transparent)">
+    <div class="ico !w-10 !h-10 !rounded-xl" style="--h:${h}">${icon(QICON[x.cat])}</div>
+    <div class="flex-1 min-w-0"><div class="text-sm font-bold ${d ? 'line-through' : ''}">${esc(x.t)}</div><div class="text-xs text-amber-300/80 mt-0.5">+${x.r} 🪙</div></div>
+    ${d ? `<span class="w-11 h-11 rounded-full grid place-items-center acc-bg text-white shrink-0"><span class="w-5 h-5">${svgI('<path d="M5 12.5l4.5 4.5L19 7.5"/>', 'width:100%;height:100%')}</span></span>` : `<button data-a="qDone" data-id="${x.id}" aria-label="Выполнил" class="w-11 h-11 rounded-full grid place-items-center shrink-0" style="border:2.5px solid color-mix(in srgb,${h} 55%,transparent)"><span class="w-5 h-5">${svgI('<path d="M12 5v14M5 12h14"/>', 'width:100%;height:100%')}</span></button>`}
   </div>`;
 }
 
@@ -988,7 +1109,7 @@ V.quests = () => {
     <div class="text-right"><div class="label">Новые квесты через</div><div id="qTimer" class="mono text-lg font-bold">${Math.floor(sec / 3600)}ч ${Math.floor(sec % 3600 / 60)}м</div></div></div>
     ${bar(done / q.length)}
   </div>
-  <div class="card divide-y divide-white/5 mt-3">${q.map(questRow).join('')}</div>
+  <div class="grid gap-2.5 mt-3">${q.map(questRow).join('')}</div>
   ${sectionTitle('Накопительные до конца недели', `<span class="text-xs text-zinc-500">осталось ${dLeft} ${plural(dLeft, 'день', 'дня', 'дней')}</span>`)}
   <div class="grid sm:grid-cols-2 gap-3">${WQ.filter(visItem).map(w => {
     const v = w.v(), ok = v >= w.g, cl = wc[w.id];
@@ -1083,29 +1204,33 @@ V.shop = () => {
 };
 
 /* ============ router & render ============ */
-const NAV = [['home','Главная','house'],['study','Учёба','graduation-cap'],['quests','Квесты','scroll-text'],['achievements','Награды','trophy'],['shop','Магазин','store']];
+const NAV = [['home','Главная','nav-home'],['quests','Привычки','nav-list'],['stats','Статистика','nav-stats'],['achievements','Награды','nav-trophy']];
 const route = () => { const r = (location.hash || '#home').slice(1); return V[r] ? r : 'home'; };
+let lastRoute = '', lastTap = null;
+document.addEventListener('pointerdown', e => { lastTap = {x:e.clientX, y:e.clientY}; }, true);
+function floatCoin(n){ const d = document.createElement('div'); d.className = 'coinfloat'; d.textContent = '+' + n + ' 🪙'; d.style.left = (lastTap ? lastTap.x : innerWidth / 2) + 'px'; d.style.top = ((lastTap ? lastTap.y : innerHeight / 2) - 20) + 'px'; document.body.appendChild(d); setTimeout(() => d.remove(), 1000); if (navigator.vibrate) navigator.vibrate(15); }
 function render(){
   regCustom();
   const onbShow = !state.onb.done || onbOpen;
   document.body.classList.toggle('onb', onbShow);
   if (onbShow) { if (!ob) obInit(); $('#view').innerHTML = V.onboard(); $('#coins').textContent = state.coins; $('#avatar').textContent = state.profile.avatar; if (window.lucide) lucide.createIcons(); return; }
-  const r = route();
-  $('#view').innerHTML = V[r]();
-  const top = MOD[r] ? 'home' : r;
+  const r = route(), vw = $('#view');
+  vw.classList.toggle('anim', r !== lastRoute); lastRoute = r;
+  vw.innerHTML = V[r]();
+  const top = MOD[r] ? 'home' : ({study:'stats', archive:'stats', shop:'home'})[r] || r;
   $('#dnav').innerHTML = NAV.map(([id, t]) => `<a href="#${id}" class="navlink px-3 py-2 rounded-xl ${top === id ? 'on' : ''}">${t}</a>`).join('');
-  $('#mnav').innerHTML = `<div class="grid grid-cols-5">${NAV.map(([id, t, i]) => `<a href="#${id}" class="flex flex-col items-center gap-1 py-2.5 text-[10px] font-semibold ${top === id ? 'on' : ''}"><i data-lucide="${i}" class="w-5 h-5"></i>${t}</a>`).join('')}</div>`;
+  $('#mnav').innerHTML = `<div class="grid grid-cols-4">${NAV.map(([id, t, i]) => `<a href="#${id}" class="flex flex-col items-center gap-1 py-2.5 text-[10px] font-semibold ${top === id ? 'on' : ''}">${icon(i, 'w-5 h-5')}${t}</a>`).join('')}</div>`;
   $('#coins').textContent = state.coins;
   $('#avatar').textContent = state.profile.avatar;
   if (window.lucide) lucide.createIcons();
 }
 /* ============ light / dark mode ============ */
 const MKEY = 'lifequest.mode', sysLight = matchMedia('(prefers-color-scheme: light)');
-const modePref = () => { try { const m = localStorage.getItem(MKEY); return m === 'light' || m === 'dark' ? m : 'auto'; } catch { return 'auto'; } };
+const modePref = () => { try { const m = localStorage.getItem(MKEY); return m === 'light' || m === 'dark' || m === 'auto' ? m : 'light'; } catch { return 'light'; } };
 const modeNow = () => { const p = modePref(); return p === 'auto' ? (sysLight.matches ? 'light' : 'dark') : p; };
 function paintMode(){ const b = $('#modeBtn'); if (b) b.innerHTML = icon(modeNow() === 'light' ? 'moon' : 'sun', 'w-[18px] h-[18px]'); }
 function applyMode(){ const m = modeNow(); document.documentElement.dataset.mode = m; $('meta[name=theme-color]')?.setAttribute('content', m === 'light' ? '#f4f4f8' : '#09090b'); paintMode(); }
-function setMode(p){ try { p === 'auto' ? localStorage.removeItem(MKEY) : localStorage.setItem(MKEY, p); } catch {} applyMode(); }
+function setMode(p){ try { localStorage.setItem(MKEY, p); } catch {} applyMode(); }
 sysLight.addEventListener?.('change', () => { if (modePref() === 'auto') applyMode(); });
 
 function applyTheme(){
@@ -1158,6 +1283,7 @@ function profileModal(){
     <div class="grid grid-cols-4 gap-2 mt-3">${[['Квестов', Object.values(state.quests.done).reduce((n, d) => n + Object.keys(d || {}).length, 0)], ['Книг', state.books.filter(b => b.done).length], ['Судоку', Object.values(state.sudoku.solved).reduce((n, v) => n + v, 0)], ['Трен.', Object.values(state.gym.workouts).filter(Boolean).length]].map(([t, v]) => `<div class="rounded-xl bg-white/[.03] border border-white/5 py-2 text-center"><div class="font-extrabold tabular-nums">${v}</div><div class="text-[10px] text-zinc-500">${t}</div></div>`).join('')}</div>
     <div class="mt-4"><span class="label">Оформление</span><div class="grid grid-cols-3 gap-2 mt-1">${[['light', 'Светлая', 'sun'], ['dark', 'Тёмная', 'moon'], ['auto', 'Авто', 'monitor']].map(([m, t, i]) => `<button type="button" data-a="modeSet" data-m="${m}" class="chip !rounded-xl flex items-center justify-center gap-1.5 ${modePref() === m ? 'on' : ''}">${icon(i, 'w-4 h-4')}${t}</button>`).join('')}</div></div>
     <button type="button" data-a="onbRedo" class="btn-soft w-full mt-3 text-sm">Изменить интересы и цели</button>
+    <button type="button" data-a="about" class="btn-ghost w-full mt-1 text-xs">О сайте</button>
     <form data-f="profile" class="mt-4 space-y-3">
       <label class="block"><span class="label">Имя игрока</span><input name="n" maxlength="24" value="${esc(state.profile.name)}" class="inp w-full mt-1"></label>
       <div><span class="label">Аватар</span><div class="grid grid-cols-5 gap-2 mt-1">${AVATARS.map(a => `<label class="cursor-pointer"><input type="radio" name="a" value="${a}" class="peer hidden" ${state.profile.avatar === a ? 'checked' : ''}><div class="text-2xl py-2 rounded-xl text-center bg-white/[.03] border border-white/5 peer-checked:border-white/50 peer-checked:bg-white/10">${a}</div></label>`).join('')}</div></div>
@@ -1176,21 +1302,30 @@ const A = {
   mineDel(el){ const m = state.mine.find(x => x.id === el.dataset.id); if (!m) return; confirmBox(`Удалить достижение «${esc(m.t)}»?`, () => { state.mine = state.mine.filter(x => x !== m); persist(); render(); }); },
   confirmYes(){ const f = onConfirm; onConfirm = null; closeModal(); f && f(); },
   profile: profileModal,
-  obPick(el){ const id = el.dataset.id; if (ob.picks.has(id)) ob.picks.delete(id); else if (ob.picks.size >= 10) return toast('Максимум 10 направлений'); else { ob.picks.add(id); ob.lvl[id] = ob.lvl[id] || 1; } render(); },
+  obPick(el){ const id = el.dataset.id; if (ob.picks.has(id)) ob.picks.delete(id); else if (ob.picks.size >= 10) return toast('Максимум 10 направлений'); else { ob.picks.add(id); ob.lvl[id] = ob.lvl[id] || defLvl(); } render(); },
   obLvl(el){ ob.lvl[el.dataset.id] = +el.dataset.l; render(); },
   setLvl(el){ (state.onb.level ||= {})[el.dataset.id] = +el.dataset.l; persist(); render(); },
-  obAddCustom(){ const i = $('#obCustom'), t = (i && i.value || '').trim().slice(0, 24); if (!t) return; if (ob.picks.size >= 10) return toast('Максимум 10 направлений'); const c = {id:'u' + Date.now().toString(36), t}; ob.custom.push(c); ob.picks.add(c.id); ob.lvl[c.id] = 1; regCustom_(c); render(); },
+  obAddCustom(){ const i = $('#obCustom'), t = (i && i.value || '').trim().slice(0, 24); if (!t) return; if (ob.picks.size >= 10) return toast('Максимум 10 направлений'); const c = {id:'u' + Date.now().toString(36), t}; ob.custom.push(c); ob.picks.add(c.id); ob.lvl[c.id] = defLvl(); ob.cat = 'mine'; regCustom_(c); render(); },
   obRole(el){ ob.role = el.dataset.r; render(); },
-  obNext(){ if (ob.step === 1 && ob.picks.size < 3) return toast('Выбери минимум 3 направления'); ob.step = Math.min(2, ob.step + 1); render(); scrollTo({top:0}); },
+  obNext(){ if (ob.step === 5 && ob.picks.size < 3) return toast('Выбери минимум 3 направления'); ob.step = Math.min(7, ob.step + 1); obEnter(); render(); scrollTo({top:0}); },
+  obCat(el){ ob.cat = el.dataset.c; render(); },
+  obOpt(el){ ob[el.dataset.k] = el.dataset.v; ob.step = Math.min(7, ob.step + 1); obEnter(); render(); scrollTo({top:0}); },
   obBack(){ ob.step = Math.max(0, ob.step - 1); render(); scrollTo({top:0}); },
   obCancel(){ onbOpen = false; ob = null; render(); },
   obFinish(){
     const picks = [...ob.picks]; if (picks.length < 3 || picks.length > 10) return toast('Выбери от 3 до 10 направлений');
     const name = (ob.name || '').trim(); if (name) state.profile.name = name.slice(0, 24);
-    state.onb = {done:true, picks, role:ob.role, goal:(ob.goal || '').trim().slice(0, 140), money:(ob.money || '').trim().slice(0, 30), level:Object.fromEntries(picks.map(id => [id, ob.lvl[id] || 1])), custom:ob.custom.filter(c => ob.picks.has(c.id))};
+    state.onb = {done:true, picks, focus:ob.focus || '', time:ob.time || '', role:ob.role, goal:(ob.goal || '').trim().slice(0, 140), money:(ob.money || '').trim().slice(0, 30), level:Object.fromEntries(picks.map(id => [id, ob.lvl[id] || 1])), archive:(state.onb.archive || []).filter(id => !picks.includes(id)), custom:ob.custom.filter(c => ob.picks.has(c.id))};
     if (picks.includes('money') && ob.money) sk('money').target = ob.money.trim().slice(0, 30);
     onbOpen = false; ob = null; persist(); location.hash = '#home'; render(); toast('🎉 Готово! Квесты подобраны под тебя');
   },
+  about(){ modal(`<div class="flex items-center justify-between"><div class="text-lg font-bold">Что такое Tectonik</div><button data-a="close" class="btn-ghost p-2 rounded-lg" aria-label="Закрыть">✕</button></div>
+    <p class="text-sm text-zinc-300 mt-3"><b>Tectonik превращает саморазвитие в игру.</b> Ты выбираешь, что хочешь развивать: спорт, учёбу, языки, шахматы, деньги, намаз или своё направление, и каждый день получаешь небольшие квесты. За них идут монеты и опыт: повышай уровень, открывай награды и покупай в магазине компаньона и украшения.</p>
+    <p class="text-sm text-zinc-400 mt-3"><b class="text-zinc-200">Зачем это нужно.</b> Большие цели трудно держать в голове и легко бросить. Сайт делит их на маленькие шаги на каждый день, показывает прогресс и помогает заниматься регулярно.</p>
+    <ul class="text-sm text-zinc-400 mt-3 space-y-1.5 list-disc pl-5"><li>Квесты под твои цели и уровень сложности: начинающий, средний, сложный</li><li>Серии, недельные достижения и награды</li><li>Свои цели и достижения на неделю</li><li>Прогресс хранится в облаке через аккаунт Google: на телефоне и на компьютере одно и то же</li><li>Это бесплатно</li></ul>
+    <button data-a="close" class="btn w-full mt-5">Понятно</button>`); },
+  archive(el){ const id = el.dataset.id, o = state.onb; if (o.picks.length <= 1) return toast('Нужно оставить хотя бы одно направление'); o.picks = o.picks.filter(x => x !== id); o.archive = [...(o.archive || []).filter(x => x !== id), id]; persist(); location.hash = '#home'; render(); toast('📦 Направление в архиве'); },
+  unarchive(el){ const id = el.dataset.id, o = state.onb; if (o.picks.length >= 10) return toast('Максимум 10 направлений'); o.archive = (o.archive || []).filter(x => x !== id); if (!o.picks.includes(id)) o.picks.push(id); persist(); render(); toast('♻️ Направление возвращено'); },
   onbRedo(){ closeModal(); obInit(); onbOpen = true; render(); scrollTo({top:0}); },
   skTask(el){ const id = route(), i = +el.dataset.i, k = today(), s = sk(id), d = (s.done[k] ||= {}); if (d[i]) return; const t = genList(id).find(x => x[0] === skTasks(id, k)[i][0]); d[i] = true; s.days[k] = true; earn(t ? t[1] : 15, MOD[id].t); render(); },
   skDay(el){ const s = sk(route()), k = el.dataset.k; if (s.days[k]) delete s.days[k]; else s.days[k] = true; persist(); render(); },
@@ -1335,7 +1470,8 @@ function tick(){
 }
 setInterval(tick, 1000);
 
-applyMode(); applyTheme(); render(); tick(); paintSync();
+{ const li = $('#logoImg'); if (li) li.src = LOGO; const fv = document.querySelector('link[rel=icon]'); if (fv) fv.href = LOGO; }
+applyMode(); applyTheme(); render(); tick(); paintSync(); fixIcons();
 FB_ON ? initGoogle() : initCloud();
 </script>
 </body>
