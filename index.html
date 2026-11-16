@@ -128,7 +128,8 @@
   html[data-mode=light] .peer:checked~.peer-checked\:border-white\/50{border-color:var(--acc)}
   html[data-mode=light] .peer:checked~.peer-checked\:bg-white\/10{background:color-mix(in srgb,var(--acc) 14%,transparent)}
   html,body{transition:background-color .25s,color .25s}
-  body.onb #mnav,body.onb #dnav{display:none}
+  body.onb #mnav,body.onb #dnav,body.onb header{display:none}
+  a.btn,a.btn-soft,a.btn-ghost{display:inline-flex;align-items:center;justify-content:center;text-align:center}
   .btn,.btn-soft,.btn-ghost,.chip,.card{transition:transform .15s ease,background-color .2s,box-shadow .25s,border-color .2s,opacity .2s}
   .btn:active,.btn-soft:active,.chip:active{transform:scale(.96)}a.card:active,button.card:active{transform:scale(.985)}
   @media (hover:hover){a.card:hover{transform:translateY(-2px);box-shadow:0 10px 26px -14px rgba(0,0,0,.45)}}
@@ -151,13 +152,7 @@
       <img id="logoImg" alt="Tectonik" class="w-9 h-9 rounded-xl object-cover" style="box-shadow:0 2px 8px rgba(0,0,0,.25)">
       <span class="hidden sm:inline">Tectonik</span>
     </a>
-    <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[.04] border border-white/5">
-      <i data-lucide="clock-3" class="w-4 h-4 acc-text"></i>
-      <div class="leading-tight">
-        <div id="clk" class="mono text-sm tabular-nums">--:--:--</div>
-        <div id="clkd" class="text-[10px] text-zinc-500">Бишкек · GMT+6</div>
-      </div>
-    </div>
+    <a href="#stats" id="flameChip" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[.04] border border-white/5 font-extrabold" aria-label="Огоньки"><span class="text-lg leading-none">🔥</span><span id="flameN" class="tabular-nums">0</span></a>
     <nav id="dnav" class="hidden md:flex ml-3 gap-1 text-sm font-semibold"></nav>
     <div class="ml-auto flex items-center gap-2">
       <div class="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl bg-amber-400/10 text-amber-300 font-bold text-sm">
@@ -320,6 +315,7 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "589256282042",
   appId: "1:589256282042:web:81c8eb8f21105ee5991783"
 };
+const isFile = location.protocol === 'file:', SITE_URL = 'https://ulaa228-maker.github.io/lifequest/';
 const FB_ON = !!(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId);
 let gUser = null, fbAuth = null;
 const loadScript = src => new Promise((res, rej) => { const el = document.createElement('script'); el.src = src; el.onload = res; el.onerror = rej; document.head.appendChild(el); });
@@ -710,8 +706,9 @@ function homeTop(){
   const tile = (n, c) => `<div class="w-11 h-11 rounded-2xl bg-white grid place-items-center shrink-0" style="color:${c};box-shadow:0 4px 10px rgba(0,0,0,.2)"><span class="w-6 h-6">${svgI(SVGI[n], 'width:100%;height:100%')}</span></div>`;
   const tq = dailyQuests(), dn = tq.filter(qDone).length, all = tq.length > 0 && dn === tq.length, hr = new Date().getHours(), gr = hr < 5 ? 'Доброй ночи' : hr < 12 ? 'Доброе утро' : hr < 18 ? 'Добрый день' : 'Добрый вечер';
   const today_ = `<div class="card p-5 mt-4"><div class="text-sm text-zinc-500">${gr}, ${esc(state.profile.name)}</div><div class="text-xl font-extrabold mt-1">${all ? 'Все задания на сегодня выполнены 🎉' : `Сегодня: ${dn} из ${tq.length}`}</div><div class="mt-3">${bar(tq.length ? dn / tq.length : 0, '')}</div><a href="#quests" class="btn w-full mt-4 text-sm">${all ? 'Открыть привычки' : 'К заданиям на сегодня'}</a></div>`;
-  return `${today_}<a href="#shop" class="mt-3 flex items-center justify-between gap-3 rounded-3xl p-5" style="background:linear-gradient(135deg,#d6347f,#b83280);color:#fff"><div><div class="text-xl font-extrabold">Магазин</div><div class="text-sm" style="opacity:.85">Обнови свой стиль</div></div><div class="flex gap-2">${tile('crown2', '#f5b942')}${tile('shirt', '#6366f1')}${tile('chev', '#d6347f')}</div></a>
-  <div class="card p-5 mt-3"><div class="flex items-center gap-3"><div class="text-4xl leading-none">🔥</div><div class="flex-1"><span class="text-3xl font-extrabold tabular-nums">${now}</span> <span class="text-sm text-zinc-500">${pl(now, ['огонёк', 'огонька', 'огоньков'])}</span></div><a href="#stats" class="btn-ghost text-xs px-2.5 py-1.5 rounded-lg">Статистика</a></div>
+  const signBanner = FB_ON && !isFile && !gUser ? `<div class="card p-3 mt-3 flex items-center gap-3"><div class="flex-1 text-xs text-zinc-400"><b class="text-zinc-200">Сохрани прогресс.</b> Войди через Google, и он будет на всех устройствах.</div><button data-a="signIn" class="btn !py-2 !px-3 text-xs shrink-0">Войти</button></div>` : '';
+  return `${signBanner}${isFile ? `<div class="card p-3 mt-3 text-xs text-zinc-400">Сайт открыт как файл: вход через Google и облако здесь не работают. <a href="${SITE_URL}" class="acc-text font-semibold">Открыть по ссылке</a></div>` : ''}<a href="#shop" class="mt-3 flex items-center justify-between gap-3 rounded-3xl p-5" style="background:linear-gradient(135deg,#d6347f,#b83280);color:#fff"><div><div class="text-xl font-extrabold">Магазин</div><div class="text-sm" style="opacity:.85">Обнови свой стиль</div></div><div class="flex gap-2">${tile('crown2', '#f5b942')}${tile('shirt', '#6366f1')}${tile('chev', '#d6347f')}</div></a>
+  <div class="card p-4 mt-3"><div class="flex items-center gap-3"><div class="text-3xl leading-none">🔥</div><div class="flex-1"><span class="text-3xl font-extrabold tabular-nums">${now}</span> <span class="text-sm text-zinc-500">${pl(now, ['огонёк', 'огонька', 'огоньков'])}</span></div></div>
   <div class="grid grid-cols-7 gap-2 mt-4 text-center">${wk.map((k, i) => { const on = set.has(k), td = k === t; return `<div><div class="mx-auto w-9 h-9 sm:w-10 sm:h-10 rounded-full grid place-items-center ${on ? 'acc-bg text-white' : 'bg-white/10'}" style="${td && !on ? 'box-shadow:inset 0 0 0 2.5px var(--acc)' : ''}">${on ? `<span class="w-4 h-4">${svgI('<path d="M5 12.5l4.5 4.5L19 7.5"/>', 'width:100%;height:100%')}</span>` : ''}</div><div class="text-[11px] mt-1.5 ${td ? 'acc-text font-bold' : 'text-zinc-500'}">${L[i]}</div></div>`; }).join('')}</div></div>`;
 }
 V.stats = () => {
@@ -746,33 +743,33 @@ V.onboard = () => {
   const st = ob.step, n = ob.picks.size, TOT = 7, CHK = svgI('<path d="M5 12.5l4.5 4.5L19 7.5"/>', 'width:100%;height:100%');
   const tile = m => { const on = ob.picks.has(m.id), l = ob.lvl[m.id] || 1; return `<div class="card p-3 ${on ? 'acc-border' : ''}">
     <button data-a="obPick" data-id="${m.id}" class="w-full flex items-center gap-2.5 text-left"><div class="ico !w-10 !h-10 !rounded-xl" style="--h:${m.h}">${icon(m.i)}</div><span class="flex-1 min-w-0 text-[13px] sm:text-sm font-semibold leading-tight break-words">${esc(m.t)}</span>${on ? `<span class="w-5 h-5 acc-text shrink-0">${CHK}</span>` : ''}</button>
-    ${on ? `<div class="grid gap-1.5 mt-3">${[1, 2, 3].map(v => `<button data-a="obLvl" data-id="${m.id}" data-l="${v}" class="chip !py-1.5 !px-2 text-xs text-left ${l === v ? 'on' : ''}">${LVT[v]}</button>`).join('')}</div>` : ''}</div>`; };
-  const bar = inner => `<div class="sticky bottom-0 z-10 -mx-4 px-4 pt-3 mt-5 bg-[#09090b]/90 backdrop-blur" style="padding-bottom:calc(.75rem + env(safe-area-inset-bottom))">${inner}</div>`;
-  const opt = (k, v, e, t, sel) => `<button data-a="obOpt" data-k="${k}" data-v="${v}" class="card p-4 w-full flex items-center gap-4 text-left ${sel ? 'acc-border' : ''}"><span class="text-2xl w-9 text-center">${e}</span><span class="font-semibold">${t}</span></button>`;
+    ${on ? `<div class="grid grid-cols-3 gap-1 mt-2.5">${[1, 2, 3].map(v => `<button data-a="obLvl" data-id="${m.id}" data-l="${v}" class="chip !py-1 !px-0 text-[11px] text-center justify-center ${l === v ? 'on' : ''}">${{1:'Нач.', 2:'Сред.', 3:'Слож.'}[v]}</button>`).join('')}</div>` : ''}</div>`; };
+  const bar = inner => `<div class="sticky bottom-0 z-10 -mx-4 px-4 pt-3 mt-auto bg-[#09090b]/90 backdrop-blur" style="padding-bottom:calc(.75rem + env(safe-area-inset-bottom))">${inner}</div>`;
+  const opt = (k, v, e, t, sel) => `<button data-a="obOpt" data-k="${k}" data-v="${v}" class="card p-3.5 w-full flex items-center gap-4 text-left ${sel ? 'acc-border' : ''}"><span class="text-2xl w-9 text-center">${e}</span><span class="font-semibold">${t}</span></button>`;
   const head = (h, sub) => `<h1 class="text-2xl sm:text-3xl font-extrabold">${h}</h1><p class="text-sm text-zinc-400 mt-2">${sub}</p>`;
   const next = (t = 'Дальше', dis = false) => bar(`<button data-a="obNext" class="btn w-full" ${dis ? 'disabled style="opacity:.45"' : ''}>${t}</button>`);
   let body;
-  if (st === 0) body = `<div class="text-center pt-2"><img src="${LOGO}" alt="Tectonik" class="mx-auto w-28 h-28 rounded-[28px] object-cover" style="box-shadow:0 18px 40px -12px rgba(0,0,0,.45)"><h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight mt-6">Tectonik</h1><p class="text-lg text-zinc-400 mt-2">Прокачивай себя каждый день</p><p class="text-sm text-zinc-500 mt-3 max-w-md mx-auto">Ежедневные квесты, серии, монеты и награды по твоим целям. Маленькие шаги складываются в большие перемены.</p></div>
-    <div class="mt-6 grid grid-cols-3 gap-2 text-center">${[['27+', 'направлений'], ['3', 'уровня сложности'], ['0 ₽', 'бесплатно']].map(([a, b]) => `<div class="card p-3"><div class="text-xl font-extrabold acc-text">${a}</div><div class="text-[11px] text-zinc-500 mt-0.5">${b}</div></div>`).join('')}</div>
-    <div class="mt-4 grid sm:grid-cols-2 gap-2.5">${[['🎯', 'Свои цели', 'Выбери направления из 7 категорий: спорт, учёба, творчество, деньги и другие'], ['🔥', 'Серия и квесты', 'Каждый день новые задания по твоему уровню и времени'], ['🏆', 'Награды и уровни', 'Монеты, достижения, магазин и компаньон'], ['☁️', 'Везде с тобой', 'Прогресс хранится в облаке: телефон и компьютер синхронизируются']].map(([e, t, d]) => `<div class="card p-4 flex gap-3"><span class="text-2xl">${e}</span><div><div class="text-sm font-bold">${t}</div><div class="text-xs text-zinc-500 mt-0.5">${d}</div></div></div>`).join('')}</div>
-    ${FB_ON && !gUser ? `<button data-a="signIn" class="w-full mt-5 flex items-center justify-center gap-2.5 rounded-xl py-2.5 bg-white text-zinc-900 border border-zinc-300 font-semibold text-sm">${G_LOGO}У меня уже есть аккаунт — войти через Google</button>` : ''}
-    <button data-a="about" class="block mx-auto mt-3 text-xs acc-text font-semibold">Что это за сайт?</button>${next('Начать')}`;
-  else if (st === 1) body = head('Как тебя зовут?', 'Так мы будем к тебе обращаться.') + `<input data-ob="name" value="${esc(ob.name)}" maxlength="24" placeholder="Имя" class="inp w-full mt-6 !text-lg !py-4">${next()}`;
-  else if (st === 2) body = head('Что сейчас для тебя главное?', 'Подберём направления под твою цель.') + `<div class="grid gap-2.5 mt-6">${FOCUS.map(f => opt('focus', f[0], f[1], f[2], ob.focus === f[0])).join('')}</div>`;
-  else if (st === 3) body = head('Сколько времени в день готов уделять?', 'От этого зависит сложность твоих заданий.') + `<div class="grid gap-2.5 mt-6">${TIME_OPTS.map(t => opt('time', t[0], t[1], t[2], ob.time === t[0])).join('')}</div>`;
-  else if (st === 4) body = head('Кто ты сейчас?', 'Задания будут точнее подходить тебе.') + `<div class="grid gap-2.5 mt-6">${ROLES.map(([i, t]) => opt('role', i, ROLE_E[i], t, ob.role === i)).join('')}</div>`;
+  if (st === 0) body = `<div class="text-center pt-2"><img src="${LOGO}" alt="Tectonik" class="mx-auto w-20 h-20 rounded-[22px] object-cover" style="box-shadow:0 14px 30px -10px rgba(0,0,0,.45)"><h1 class="text-3xl font-extrabold tracking-tight mt-4">Tectonik</h1><p class="text-base text-zinc-400 mt-1">Прокачивай себя каждый день</p></div>
+    <div class="mt-5 grid grid-cols-3 gap-2 text-center">${[['🎯', 'Свои цели'], ['🔥', 'Квесты и серия'], ['🏆', 'Награды']].map(([e, t]) => `<div class="card p-3"><div class="text-2xl">${e}</div><div class="text-[11px] text-zinc-500 mt-1 leading-tight">${t}</div></div>`).join('')}</div>
+    <p class="text-xs text-zinc-500 text-center mt-4">Выбери направления, получай ежедневные задания, монеты и уровни. Бесплатно, прогресс хранится в облаке.</p>
+    ${isFile ? `<div class="card p-3 mt-4 text-xs text-zinc-400">Сайт открыт как файл: вход через Google здесь не работает. <a href="${SITE_URL}" class="acc-text font-semibold">Открыть по ссылке</a></div>` : ''}
+    <button data-a="about" class="block mx-auto mt-3 text-xs acc-text font-semibold">Что это за сайт?</button>${bar(FB_ON && !isFile && !gUser ? `<button data-a="signIn" class="w-full flex items-center justify-center gap-2.5 rounded-xl py-3 bg-white text-zinc-900 border border-zinc-300 font-semibold">${G_LOGO}Продолжить через Google</button><button data-a="obNext" class="btn-soft w-full mt-2">Начать без регистрации</button>` : `<button data-a="obNext" class="btn w-full">Начать</button>`)}`;
+  else if (st === 1) body = head('Как тебя зовут?', 'Так мы будем к тебе обращаться.') + `<input data-ob="name" value="${esc(ob.name)}" maxlength="24" placeholder="Имя" class="inp w-full mt-4 !text-lg !py-3.5">${next()}`;
+  else if (st === 2) body = head('Что сейчас для тебя главное?', 'Подберём направления под твою цель.') + `<div class="grid gap-2 mt-4">${FOCUS.map(f => opt('focus', f[0], f[1], f[2], ob.focus === f[0])).join('')}</div>`;
+  else if (st === 3) body = head('Сколько времени в день готов уделять?', 'От этого зависит сложность твоих заданий.') + `<div class="grid gap-2 mt-4">${TIME_OPTS.map(t => opt('time', t[0], t[1], t[2], ob.time === t[0])).join('')}</div>`;
+  else if (st === 4) body = head('Кто ты сейчас?', 'Задания будут точнее подходить тебе.') + `<div class="grid gap-2 mt-4">${ROLES.map(([i, t]) => opt('role', i, ROLE_E[i], t, ob.role === i)).join('')}</div>`;
   else if (st === 5) { const cc = CATS.map(c => [c, obAll().filter(m => catOf(m.id) === c[0])]).filter(([c, l]) => l.length || c[0] === 'mine'), cur = cc.find(([c]) => c[0] === ob.cat) || cc[0], cnt = l => l.filter(m => ob.picks.has(m.id)).length;
     body = head('Что хочешь развивать?', `${ob.focus ? 'Мы подобрали направления под твою цель, измени как хочешь. ' : ''}Нужно от 3 до 10. Выбрано: <b class="${n >= 3 ? 'acc-text' : ''}">${n}</b> из 10`) + `
     <div class="flex gap-2 overflow-x-auto noscroll -mx-4 px-4 mt-4 pb-1">${cc.map(([c, l]) => `<button data-a="obCat" data-c="${c[0]}" class="chip shrink-0 ${cur[0][0] === c[0] ? 'on' : ''}">${c[1]} ${c[2]}${cnt(l) ? ` <b class="acc-text">${cnt(l)}</b>` : ''}</button>`).join('')}</div>
-    <div class="card p-3 mt-3 text-xs text-zinc-400 space-y-1"><div><b class="text-zinc-200">Начинающий</b> — только начинаю</div><div><b class="text-zinc-200">Средний</b> — уже этим занимаюсь</div><div><b class="text-zinc-200">Сложный</b> — хочу заниматься регулярно</div></div>
+    <p class="text-[11px] text-zinc-500 mt-3"><b class="text-zinc-300">Нач.</b> — только начинаю · <b class="text-zinc-300">Сред.</b> — уже занимаюсь · <b class="text-zinc-300">Слож.</b> — хочу регулярно</p>
     <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 mt-3 items-start">${cur[1].map(tile).join('') || '<div class="col-span-2 text-sm text-zinc-500 py-4">Здесь появятся твои собственные направления.</div>'}</div>
     <div class="flex gap-2 mt-3"><input id="obCustom" maxlength="24" placeholder="Своё направление" class="inp flex-1 min-w-0"><button data-a="obAddCustom" class="btn-soft shrink-0">Добавить</button></div>${next(n < 3 ? `Выбери ещё ${3 - n}` : 'Дальше', n < 3)}`; }
   else if (st === 6) body = head('Какая у тебя цель?', 'Главное, чего хочешь добиться за ближайшие 3 месяца.') + `<input data-ob="goal" value="${esc(ob.goal)}" maxlength="140" placeholder="Например: стать сильнее и найти подработку" class="inp w-full mt-6">
     ${ob.picks.has('money') ? `<label class="block mt-4"><span class="label">Сколько хочешь заработать или накопить?</span><input data-ob="money" value="${esc(ob.money)}" maxlength="30" placeholder="Например: 50 000 сом" class="inp w-full mt-1"></label>` : ''}${next()}`;
-  else body = head('Твой план готов 🎯', `${n} направлений · около ${ob.time || 20} минут в день`) + `<div class="grid gap-2 mt-5">${[...ob.picks].map(id => obAll().find(m => m.id === id)).filter(Boolean).map(m => `<div class="card p-3 flex items-center gap-3"><div class="ico !w-9 !h-9 !rounded-xl" style="--h:${m.h}">${icon(m.i)}</div><div class="flex-1 text-sm font-semibold">${esc(m.t)}</div><span class="text-xs text-zinc-500">${LV[ob.lvl[m.id] || 1]}</span></div>`).join('')}</div>
-    <div class="card p-5 mt-5 text-center"><div class="text-3xl">🤝</div><div class="font-bold mt-2">Договор с самим собой</div><p class="text-sm text-zinc-400 mt-2">Я обещаю заниматься каждый день, а если сорвусь, не бросать, а вернуться на следующий день.</p></div>
+  else body = head('Твой план готов 🎯', `${n} направлений · около ${ob.time || 20} минут в день`) + `<div class="flex flex-wrap gap-2 mt-4">${[...ob.picks].map(id => obAll().find(m => m.id === id)).filter(Boolean).map(m => `<span class="chip !py-1.5 flex items-center gap-1.5"><span class="inline-grid w-4 h-4">${icon(m.i)}</span>${esc(m.t)} <span class="text-zinc-500">· ${LV[ob.lvl[m.id] || 1]}</span></span>`).join('')}</div>
+    <div class="card p-4 mt-4 text-center"><div class="text-2xl">🤝</div><div class="font-bold mt-2">Договор с самим собой</div><p class="text-sm text-zinc-400 mt-2">Я обещаю заниматься каждый день, а если сорвусь, не бросать, а вернуться на следующий день.</p></div>
     ${bar('<button data-hold class="btn hold w-full">Удерживай, чтобы согласиться</button><p class="text-[11px] text-zinc-500 text-center mt-2">Нажми и держи кнопку пару секунд</p>')}`;
-  return `<div class="fade max-w-xl sm:max-w-3xl lg:max-w-4xl mx-auto pb-6"><div class="flex items-center gap-3 mb-6">${st > 0 ? `<button data-a="obBack" class="btn-ghost w-10 h-10 rounded-xl grid place-items-center shrink-0" aria-label="Назад">${icon('chev-l', 'w-5 h-5')}</button>` : '<span class="w-10 shrink-0"></span>'}<div class="flex-1">${bar_(st / TOT)}</div>${onbOpen ? '<button data-a="obCancel" class="btn-ghost text-xs px-3 py-1.5 rounded-lg">Отмена</button>' : ''}</div>${body}</div>`;
+  return `<div class="fade max-w-xl sm:max-w-3xl lg:max-w-4xl mx-auto flex flex-col" style="min-height:calc(100svh - 2rem)"><div class="flex items-center gap-3 mb-4">${st > 0 ? `<button data-a="obBack" class="btn-ghost w-10 h-10 rounded-xl grid place-items-center shrink-0" aria-label="Назад">${icon('chev-l', 'w-5 h-5')}</button>` : '<span class="w-10 shrink-0"></span>'}<div class="flex-1">${bar_(st / TOT)}</div>${onbOpen ? '<button data-a="obCancel" class="btn-ghost text-xs px-3 py-1.5 rounded-lg">Отмена</button>' : ''}</div>${body}</div>`;
 };
 const bar_ = p => `<div class="h-1.5 rounded-full bg-white/10 overflow-hidden"><div class="h-full rounded-full acc-bg" style="width:${Math.round(p * 100)}%;transition:width .3s"></div></div>`;
 let holdT = null;
@@ -788,7 +785,7 @@ V.home = () => {
   const a = avg(allGrades());
   const pet = PETS.find(x => x.id === state.shop.pet);
   return `<div class="fade">
-  <section class="grid md:grid-cols-[1fr_300px] gap-3">
+  <section class="grid ${pet ? 'md:grid-cols-[1fr_300px]' : ''} gap-3">
     <div class="card p-5 sm:p-6 relative overflow-hidden">
       <div class="glow"></div>
       <p class="text-sm text-zinc-400">${greet()},</p>
@@ -798,13 +795,13 @@ V.home = () => {
         <div class="flex-1">${bar((e - lo) / (hi - lo), '')}</div>
         <span class="text-xs text-zinc-500 tabular-nums">${e - lo}/${hi - lo} XP</span>
       </div>
-      <div class="mt-5 grid grid-cols-3 gap-2">
-        <a href="#quests" class="rounded-2xl bg-white/[.03] border border-white/5 p-3"><div class="label">Квесты</div><div class="text-lg font-bold mt-0.5">${done}<span class="text-zinc-500">/${q.length}</span></div></a>
-        <a href="#ort" class="rounded-2xl bg-white/[.03] border border-white/5 p-3"><div class="label">Серия ОРТ</div><div class="text-lg font-bold mt-0.5">${ortStreak()} 🔥</div></a>
-        <a href="#study" class="rounded-2xl bg-white/[.03] border border-white/5 p-3"><div class="label">Ср. балл</div><div class="text-lg font-bold mt-0.5">${a ? a.toFixed(2) : '—'}</div></a>
+      <div class="mt-4 grid gap-2" style="grid-template-columns:repeat(${a ? 3 : 2},1fr)">
+        <a href="#quests" class="rounded-2xl bg-white/[.03] border border-white/5 p-3"><div class="label">Квесты</div><div class="text-lg font-bold mt-0.5">${done}<span class="text-zinc-500">/${q.length}</span></div><div class="mt-2">${bar(q.length ? done / q.length : 0, '')}</div></a>
+        <a href="#stats" class="rounded-2xl bg-white/[.03] border border-white/5 p-3"><div class="label">Рекорд серии</div><div class="text-lg font-bold mt-0.5">${streakInfo().best} 🔥</div></a>
+        ${a ? `<a href="#study" class="rounded-2xl bg-white/[.03] border border-white/5 p-3"><div class="label">Ср. балл</div><div class="text-lg font-bold mt-0.5">${a.toFixed(2)}</div></a>` : ''}
       </div>
     </div>
-    <div class="card p-5 flex flex-col items-center justify-center text-center relative overflow-hidden min-h-[200px]">
+    <div class="card p-4 flex flex-col items-center justify-center text-center relative overflow-hidden" ${pet ? '' : 'style="display:none"'}>
       ${pet ? `<div class="text-xs text-zinc-300 bg-white/[.06] rounded-2xl rounded-bl-sm px-3 py-2 mb-4 max-w-[240px]">${petMood()}</div>
         <div class="pt-4">${petHTML(78)}</div>
         <div class="mt-3 font-bold">${esc(state.shop.petName || pet.n)}</div>
@@ -1256,6 +1253,7 @@ const AVATARS = ['🧑','👦','👧','🧔','🦸','🥷','🧙','🤖','😎',
 const G_LOGO = `<svg viewBox="0 0 48 48" class="w-5 h-5"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.4-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.6-5.9c-2.1 1.4-4.8 2.3-7.6 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>`;
 function accountHTML(){
   const box = 'mt-5 p-3 rounded-2xl border border-white/5';
+  if (isFile) return `<div class="${box}"><div class="text-xs text-zinc-400"><b class="text-zinc-200">Аккаунт</b><br>Сайт открыт как файл, поэтому вход через Google здесь не работает. Открой его по ссылке, и прогресс будет в облаке.</div><a href="${SITE_URL}" class="btn w-full mt-3 text-sm">Открыть по ссылке</a></div>`;
   if (gUser) return `<div class="${box}"><div class="flex items-center gap-3">
       ${gUser.photoURL ? `<img src="${esc(gUser.photoURL)}" referrerpolicy="no-referrer" alt="" class="w-10 h-10 rounded-full">` : `<div class="w-10 h-10 rounded-full bg-white/[.05] grid place-items-center">${G_LOGO}</div>`}
       <div class="min-w-0 flex-1"><div class="text-sm font-bold truncate">${esc(gUser.displayName || 'Аккаунт Google')}</div><div class="text-xs text-zinc-500 truncate">${esc(gUser.email || '')}</div></div>
@@ -1336,6 +1334,7 @@ const A = {
   mode(){ setMode(modeNow() === 'light' ? 'dark' : 'light'); },
   modeSet(el){ setMode(el.dataset.m); profileModal(); },
   async signIn(){
+    if (isFile) return modal(`<div class="text-lg font-bold">Сайт открыт как файл</div><p class="text-sm text-zinc-400 mt-2">Вход через Google работает только на сайте в интернете. Открой Tectonik по ссылке, и прогресс будет сохраняться в облаке.</p><a href="${SITE_URL}" class="btn w-full mt-4">Открыть по ссылке</a><button data-a="close" class="btn-ghost w-full mt-1 text-sm">Закрыть</button>`);
     if (!FB_ON) return setupModal();
     if (!fbAuth || !FB) return toast('Google ещё загружается — попробуй через секунду');
     const prov = new FB.Au.GoogleAuthProvider(); prov.setCustomParameters({prompt:'select_account'});
@@ -1463,8 +1462,7 @@ document.addEventListener('click', e => {
 let lastDay = today();
 function tick(){
   const n = bNow(), pad = x => String(x).padStart(2, '0');
-  $('#clk').textContent = `${pad(n.getUTCHours())}:${pad(n.getUTCMinutes())}:${pad(n.getUTCSeconds())}`;
-  $('#clkd').textContent = `Бишкек · ${DOW_S[n.getUTCDay()]}, ${n.getUTCDate()} ${MONTHS_G[n.getUTCMonth()]}`;
+  const fk = state.updatedAt + '|' + today(), fn = $('#flameN'); if (fn && fk !== tick.fk) { tick.fk = fk; fn.textContent = streakInfo().now; }
   const qt = $('#qTimer'); if (qt) { const s = 86400 - (n.getUTCHours() * 3600 + n.getUTCMinutes() * 60 + n.getUTCSeconds()); qt.textContent = `${Math.floor(s / 3600)}ч ${Math.floor(s % 3600 / 60)}м`; }
   if (today() !== lastDay) { lastDay = today(); render(); }
 }
@@ -1472,7 +1470,7 @@ setInterval(tick, 1000);
 
 { const li = $('#logoImg'); if (li) li.src = LOGO; const fv = document.querySelector('link[rel=icon]'); if (fv) fv.href = LOGO; }
 applyMode(); applyTheme(); render(); tick(); paintSync(); fixIcons();
-FB_ON ? initGoogle() : initCloud();
+FB_ON && !isFile ? initGoogle() : initCloud();
 </script>
 </body>
 </html>
