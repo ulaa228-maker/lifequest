@@ -9,6 +9,9 @@
 <link rel="canonical" href="https://ulaa228-maker.github.io/lifequest/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Tectonik — RPG в реальной жизни">
+<meta property="og:site_name" content="Tectonik">
+<meta name="application-name" content="Tectonik">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Tectonik","alternateName":["Tectonik RPG","Тектоник"],"url":"https://ulaa228-maker.github.io/lifequest/"}</script>
 <meta property="og:description" content="Ежедневные квесты, монеты и награды по твоим целям. Работает на телефоне и компьютере.">
 <meta property="og:url" content="https://ulaa228-maker.github.io/lifequest/">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Tectonik","url":"https://ulaa228-maker.github.io/lifequest/","applicationCategory":"LifestyleApplication","description":"RPG в реальной жизни: ежедневные квесты, монеты и награды по твоим целям.","inLanguage":"ru"}</script>
@@ -129,6 +132,7 @@
   html[data-mode=light] .peer:checked~.peer-checked\:bg-white\/10{background:color-mix(in srgb,var(--acc) 14%,transparent)}
   html,body{transition:background-color .25s,color .25s}
   body.onb #mnav,body.onb #dnav,body.onb header{display:none}
+  .pet-a{position:relative;display:inline-block;cursor:pointer;-webkit-tap-highlight-color:transparent;transform-origin:50% 90%}.pet-awake{animation:petBob 2.4s ease-in-out infinite}.pet-sleep{filter:grayscale(.55) brightness(.82);animation:petBreath 3.6s ease-in-out infinite}.pet-hop{animation:petHop .5s ease-out!important}.zzz{position:absolute;right:-6px;top:-8px;font-weight:800;font-size:14px;color:var(--acc);opacity:0;animation:zz 2.6s ease-in infinite}.zzz.z2{animation-delay:1.3s;font-size:11px;right:-14px}@keyframes petBob{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-6px) rotate(-3deg)}50%{transform:translateY(0)}75%{transform:translateY(-4px) rotate(3deg)}}@keyframes petBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.04,.97)}}@keyframes petHop{0%{transform:translateY(0)}40%{transform:translateY(-16px) scale(1.08)}100%{transform:translateY(0)}}@keyframes zz{0%{opacity:0;transform:translate(0,6px) scale(.7)}30%{opacity:1}100%{opacity:0;transform:translate(8px,-18px) scale(1.15)}}@media (prefers-reduced-motion:reduce){.pet-awake,.pet-sleep,.zzz{animation:none}}
   a.btn,a.btn-soft,a.btn-ghost{display:inline-flex;align-items:center;justify-content:center;text-align:center}
   .btn,.btn-soft,.btn-ghost,.chip,.card{transition:transform .15s ease,background-color .2s,box-shadow .25s,border-color .2s,opacity .2s}
   .btn:active,.btn-soft:active,.chip:active{transform:scale(.96)}a.card:active,button.card:active{transform:scale(.985)}
@@ -263,7 +267,7 @@ function defaultState(){
     sudoku:{solved:{easy:0,medium:0,hard:0,expert:0}, log:{}, hist:[], cur:null},
     school:subjects,
     quests:{done:{}, weekly:{}},
-    ach:{}, mine:[], skills:{}, onb:{done:false,picks:[],role:'',goal:'',money:'',custom:[],level:{},archive:[]},
+    ach:{}, mine:[], skills:{}, visits:{}, loginClaimed:{}, promo:{used:{},editOwned:false,edit:false}, onb:{done:false,picks:[],role:'',goal:'',money:'',custom:[],level:{},archive:[]},
     shop:{themes:['violet'], theme:'violet', pets:[], pet:null, petName:'', accs:[], eq:{head:null,face:null,neck:null}}
   };
 }
@@ -274,6 +278,8 @@ function migrate(s){
   out.onb = Object.assign({done:false,picks:[],role:'',goal:'',money:'',custom:[],level:{},archive:[]}, out.onb || {});
   if (s && s.v && !s.onb) { out.onb.done = true; out.onb.picks = ['reading','skate','gym','ort','english','sudoku']; }
   out.skills = out.skills || {};
+  out.visits = out.visits || {}; out.loginClaimed = out.loginClaimed || {};
+  out.promo = Object.assign({used:{},editOwned:false,edit:false}, out.promo || {});
   out.shop.eq = Object.assign({head:null,face:null,neck:null}, out.shop.eq || {});
   out.sudoku.solved = Object.assign({easy:0,medium:0,hard:0,expert:0}, out.sudoku.solved || {});
   SUBJECTS.forEach(n => { if (!out.school[n]) out.school[n] = {grades:[], hw:[]}; });
@@ -319,7 +325,7 @@ const isFile = location.protocol === 'file:', SITE_URL = 'https://ulaa228-maker.
 const FB_ON = !!(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId);
 let gUser = null, fbAuth = null;
 const loadScript = src => new Promise((res, rej) => { const el = document.createElement('script'); el.src = src; el.onload = res; el.onerror = rej; document.head.appendChild(el); });
-const takeRemote = r => { if (state.updatedAt) saveBackup(state, 'local'); state = migrate(r); setSynced(r.updatedAt || 0); try { localStorage.setItem(LS, JSON.stringify(state)); } catch {} applyTheme(); render(); };
+const takeRemote = r => { if (state.updatedAt) saveBackup(state, 'local'); const lv = state.visits || {}; state = migrate(r); state.visits = {...lv, ...state.visits}; setSynced(r.updatedAt || 0); try { localStorage.setItem(LS, JSON.stringify(state)); } catch {} applyTheme(); render(); };
 const getRemote = async ref => snapData(await Promise.race([ref.get(), new Promise((_, j) => setTimeout(() => j({code:'timeout'}), 10000))]));
 function reconcile(remote){
   const rt = remote && remote.v ? (remote.updatedAt || 0) : 0, lt = state.updatedAt || 0, sy = getSynced();
@@ -476,7 +482,7 @@ const QHUE = {reading:'#38bdf8',skate:'#fb923c',gym:'#f87171',ort:'#818cf8',engl
 function dailyQuests(k = today()){
   const r = rng('q' + k);
   const pk = state.onb.picks, sch = !state.onb.role || ['school', 'student'].includes(state.onb.role);
-  const base = [...Object.keys(QPOOL).filter(c => c === 'school' ? sch : pk.includes(c)), ...pk.filter(c => GENM[c])].filter(c => !(c === 'ort' && isWeekend(k)));
+  const base = [...Object.keys(QPOOL).filter(c => c !== 'school' && pk.includes(c)), ...pk.filter(c => GENM[c])].filter(c => !(c === 'ort' && isWeekend(k)));
   const fl = base.filter(c => !lvOf(c) || rng('lv' + c + k)() < LVP[lvOf(c)]);
   let cats = fl.length >= 3 ? fl : [...fl, ...base.filter(c => !fl.includes(c))].slice(0, Math.min(3, base.length));
   cats = cats.map(c => [c, r()]).sort((a, b) => a[1] - b[1]).map(x => x[0]).slice(0, 5);
@@ -607,7 +613,7 @@ function weekStrip(obj, opts = {}){
   return `<div class="grid grid-cols-7 gap-1.5">${weekDays().map(k => {
     const d = fromKey(k), on = !!obj[k], fut = k > t, we = isWeekend(k);
     const vac = opts.vacation && we && !on;
-    return `<button ${opts.action && !fut ? `data-a="${opts.action}" data-k="${k}"` : 'disabled'} class="rounded-xl py-2.5 flex flex-col items-center gap-1 border transition ${on ? 'acc-bg border-transparent' : 'bg-white/[.03] border-white/5'} ${k === t && !on ? 'acc-border' : ''} ${fut ? 'opacity-40' : ''}">
+    return `<button ${opts.action && !fut && (k === t || canEditDays()) ? `data-a="${opts.action}" data-k="${k}"` : 'disabled'} class="rounded-xl py-2.5 flex flex-col items-center gap-1 border transition ${on ? 'acc-bg border-transparent' : 'bg-white/[.03] border-white/5'} ${k === t && !on ? 'acc-border' : ''} ${fut ? 'opacity-40' : ''}">
       <span class="text-[10px] font-semibold ${on ? '' : 'text-zinc-500'}">${DOW_S[d.getUTCDay()]}</span>
       <span class="text-sm font-bold">${vac ? '🌴' : on ? '✓' : d.getUTCDate()}</span></button>`; }).join('')}</div>`;
 }
@@ -681,7 +687,7 @@ V.skill = id => {
   const tip = isM ? (MONEY_TIP[role] || MONEY_TIP.other) : 'Серия важнее объёма: даже 10–15 минут в день дают результат. Отмечай дни и не пропускай два дня подряд.';
   return `<div class="fade">${pageHead(id, genStatus(id))}
   <div class="card p-5"><div class="label">Задания на сегодня</div><div class="mt-2 divide-y divide-white/5">${tasks.map(([t, r], i) => `<button data-a="skTask" data-i="${i}" class="w-full flex items-center gap-3 py-3 text-left ${done[i] ? 'opacity-60' : ''}"><i data-lucide="${done[i] ? 'circle-check' : 'circle'}" class="w-5 h-5 ${done[i] ? 'acc-text' : 'text-zinc-500'}"></i><span class="flex-1 text-sm font-semibold ${done[i] ? 'line-through' : ''}">${esc(t)}</span><span class="text-xs text-amber-300/80">+${r} 🪙</span></button>`).join('')}</div></div>
-  <div class="card p-5 mt-3"><div class="flex justify-between items-center mb-4"><div class="font-bold">Неделя</div><div class="text-sm text-zinc-400">${weekCount(s.days)}/${wTarget(id)} дней</div></div>${weekStrip(s.days, {action:'skDay'})}<p class="text-[11px] text-zinc-600 mt-3">Нажми на день, чтобы отметить или снять его.</p></div>
+  <div class="card p-5 mt-3"><div class="flex justify-between items-center mb-4"><div class="font-bold">Неделя</div><div class="text-sm text-zinc-400">${weekCount(s.days)}/${wTarget(id)} дней</div></div>${weekStrip(s.days, {action:'skDay'})}<p class="text-[11px] text-zinc-600 mt-3">Отметить можно только сегодняшний день. Правка прошлых дней открывается промокодом.</p></div>
   <form data-f="skGoal" class="card p-5 mt-3 space-y-3"><div class="font-bold">Моя цель</div>
     <input name="goal" value="${esc(s.goal)}" maxlength="140" placeholder="${isM ? 'Для чего тебе эти деньги?' : 'Чего хочешь достичь?'}" class="inp w-full">
     ${isM ? `<div class="grid grid-cols-2 gap-2"><label><span class="label">Цель (сумма)</span><input name="target" value="${esc(s.target)}" maxlength="30" placeholder="50 000 сом" class="inp w-full mt-1"></label><label><span class="label">Накоплено</span><input name="saved" type="number" min="0" value="${num(s.saved)}" class="inp w-full mt-1"></label></div>` : ''}
@@ -717,11 +723,16 @@ V.stats = () => {
   d28.forEach(k => Object.keys((state.quests.done || {})[k] || {}).forEach(id => { const c = id.split(':')[1]; cat[c] = (cat[c] || 0) + 1; }));
   const mods = state.onb.picks.map(id => MOD[id]).filter(Boolean), mx = Math.max(1, ...mods.map(m => cat[m.id] || 0));
   const start = shiftKey(weekDays()[0], -77), cells = Array.from({length:84}, (_, i) => shiftKey(start, i));
-  const heat = cells.map(k => { const c = k > t ? -1 : cntK(k), a = c <= 0 ? 0 : c === 1 ? 35 : c === 2 ? 65 : 100; return `<div class="aspect-square rounded-[4px]" style="${c < 0 ? '' : a ? `background:color-mix(in srgb,var(--acc) ${a}%,transparent)` : 'background:rgba(127,127,127,.15)'}"></div>`; }).join('');
+  const dnum = k => +k.slice(8), mon = k => +k.slice(5, 7) - 1, sel = statSel || t;
+  const hdr = Array.from({length:12}, (_, w) => { const col = cells.slice(w * 7, w * 7 + 7), f = col.find(k => dnum(k) === 1); return f ? MNS[mon(f)] : w === 0 ? MNS[mon(col[0])] : ''; });
+  const RL = ['Пн', '', 'Ср', '', 'Пт', '', 'Вс'];
+  let heat = '<div></div>' + hdr.map(x => `<div class="text-[10px] text-zinc-500 leading-none pb-0.5">${x}</div>`).join('');
+  for (let r = 0; r < 7; r++) { heat += `<div class="text-[9px] text-zinc-500 self-center">${RL[r]}</div>`; for (let w = 0; w < 12; w++) { const k = cells[w * 7 + r], c = k > t ? -1 : cntK(k), a = c <= 0 ? 0 : c === 1 ? 35 : c === 2 ? 65 : 100; heat += `<button ${c < 0 ? 'disabled' : `data-a="statDay" data-k="${k}"`} class="aspect-square rounded-[5px] text-[9px] font-semibold grid place-items-center ${a >= 65 ? 'text-white' : 'text-zinc-500'}" style="${c < 0 ? 'opacity:.35;' : ''}background:${a ? `color-mix(in srgb,var(--acc) ${a}%,transparent)` : 'rgba(127,127,127,.15)'};${k === sel ? 'box-shadow:inset 0 0 0 2px var(--acc)' : k === t ? 'box-shadow:inset 0 0 0 1.5px rgba(127,127,127,.7)' : ''}">${dnum(k)}</button>`; } }
+  const nd = fromKey(t), months = Array.from({length:6}, (_, i) => { const d = new Date(Date.UTC(nd.getUTCFullYear(), nd.getUTCMonth() - i, 1)), pre = d.toISOString().slice(0, 7), days = i === 0 ? nd.getUTCDate() : new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate(), n2 = [...set].filter(k => k.startsWith(pre)).length; return `<div class="flex items-center gap-3"><div class="w-24 text-xs text-zinc-400 capitalize">${MNN[d.getUTCMonth()]}${i && d.getUTCMonth() === 11 ? ' ' + d.getUTCFullYear() : ''}</div><div class="flex-1">${bar(n2 / days, '')}</div><div class="w-12 text-right text-xs text-zinc-500 tabular-nums">${n2}/${days}</div></div>`; }).join('');
   return `<div class="fade"><div class="flex items-end justify-between mb-4"><h1 class="text-2xl font-extrabold">Статистика</h1><span class="text-xs text-zinc-500">последние 28 дней</span></div>
   <div class="grid grid-cols-2 gap-3"><div class="card p-4"><div class="label">Активных дней</div><div class="text-3xl font-extrabold mt-1 tabular-nums">${pct}%</div><div class="text-xs text-zinc-500">${n} из 28</div><div class="mt-3">${bar(pct / 100, '')}</div></div>
-  <div class="card p-4"><div class="label">Серия</div><div class="text-3xl font-extrabold mt-1 tabular-nums">${now} 🔥</div><div class="text-xs text-zinc-500">рекорд: ${best}</div></div></div>
-  <div class="card p-4 mt-3"><div class="label mb-3">Карта активности · 12 недель</div><div class="grid grid-rows-7 grid-flow-col gap-1" style="grid-template-rows:repeat(7,1fr)">${heat}</div></div>
+  <div class="card p-4"><div class="label">Серия</div><div class="text-3xl font-extrabold mt-1 tabular-nums">${now} 🔥</div><div class="text-xs text-zinc-500">рекорд: ${best} · заходов подряд: ${visitStreak()}</div></div></div>
+  <div class="card p-4 mt-3"><div class="label mb-3">Карта активности · 12 недель</div><div class="grid gap-1" style="grid-template-columns:22px repeat(12,1fr)">${heat}</div><p class="text-[11px] text-zinc-600 mt-3">Нажми на клетку, чтобы увидеть, что было в этот день.</p></div>${dayDetail(sel)}<div class="card p-4 mt-3"><div class="label mb-3">По месяцам · активных дней</div><div class="space-y-3">${months}</div></div>
   <div class="card p-4 mt-3"><div class="label mb-3">По направлениям</div><div class="space-y-3">${mods.map(m => `<div class="flex items-center gap-3"><div class="ico !w-8 !h-8 !rounded-lg" style="--h:${m.h}">${icon(m.i)}</div><div class="flex-1 min-w-0"><div class="flex justify-between text-sm"><span class="font-semibold truncate">${esc(m.t)}</span><span class="text-zinc-500 tabular-nums">${cat[m.id] || 0}</span></div><div class="mt-1.5">${bar((cat[m.id] || 0) / mx, '')}</div></div></div>`).join('')}</div></div>
   <a href="#study" class="card p-4 mt-3 flex items-center gap-3"><div class="ico !w-11 !h-11 !rounded-xl" style="--h:#38bdf8">${icon('cap')}</div><div class="flex-1"><div class="font-bold">Учёба</div><div class="text-xs text-zinc-500">Домашние задания, предметы и оценки</div></div><span class="w-5 h-5 text-zinc-500">${svgI(SVGI.chev, 'width:100%;height:100%')}</span></a>
   <a href="#archive" class="card p-4 mt-3 flex items-center gap-3"><div class="ico !w-11 !h-11 !rounded-xl" style="--h:#a78bfa">${icon('archive')}</div><div class="flex-1"><div class="font-bold">Архив направлений</div><div class="text-xs text-zinc-500">${(state.onb.archive || []).length} в архиве</div></div><span class="w-5 h-5 text-zinc-500">${svgI(SVGI.chev, 'width:100%;height:100%')}</span></a></div>`;
@@ -730,6 +741,39 @@ V.archive = () => { const a = (state.onb.archive || []).map(id => MOD[id]).filte
   return `<div class="fade"><div class="flex items-center gap-3 mb-5"><a href="#stats" class="btn-ghost w-10 h-10 rounded-xl grid place-items-center" aria-label="Назад">${icon('chev-l', 'w-5 h-5')}</a><div><h1 class="text-2xl font-extrabold">Архив направлений</h1><p class="text-xs text-zinc-500">Прогресс сохраняется, вернуть можно в любой момент</p></div></div>
   ${a.length ? `<div class="grid gap-2.5">${a.map(m => `<div class="card p-4 flex items-center gap-3"><div class="ico !w-11 !h-11 !rounded-xl" style="--h:${m.h}">${icon(m.i)}</div><div class="flex-1 font-semibold">${esc(m.t)}</div><button data-a="unarchive" data-id="${m.id}" class="btn-soft !py-2 text-xs">Вернуть</button></div>`).join('')}</div>` : `<div class="card p-8 text-center text-sm text-zinc-500">В архиве пусто. Направление можно убрать со своей страницы кнопкой «В архив».</div>`}</div>`; };
 
+/* ============ промокоды, заходы, зверушки ============ */
+const hashS = s => { let h1 = 0xdeadbeef, h2 = 0x41c6ce57; for (let i = 0; i < s.length; i++) { const c = s.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); } h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909); h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909); return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36); };
+const PROMO = {e96tbp8r3b:'coins', ft47u5i909:'edit', '8xfy8d0spb':'edit'};
+const canEditDays = () => !!(state.promo && state.promo.edit);
+const dayOk = el => { const k = el.dataset.k; if (k === today() || canEditDays()) return true; toast('🔒 Отмечать можно только сегодня. Правка прошлых дней открывается промокодом'); return false; };
+function markVisit(){ const t = today(); if (state.visits && !state.visits[t]) { state.visits[t] = true; try { localStorage.setItem(LS, JSON.stringify(state)); } catch {} } }
+function visitStreak(){ let k = today(), n = 0; while (state.visits && state.visits[k] && n < 4000) { n++; k = shiftKey(k, -1); } return n; }
+const LOGIN = [[3, 30], [7, 70], [15, 150], [30, 400]];
+function loginBlock(){
+  const st = visitStreak(), w = ['день', 'дня', 'дней'];
+  return `${sectionTitle('Заходи каждый день', `<span class="text-xs text-zinc-500">серия: ${st} ${pl(st, w)}</span>`)}<div class="grid sm:grid-cols-2 gap-3">${LOGIN.map(([m, r]) => { const ok = st >= m, cl = state.loginClaimed[m]; return `<div class="card p-4 ${ok && !cl ? 'acc-border' : ''}"><div class="flex items-center gap-3"><div class="ico !w-10 !h-10 !rounded-xl" style="--h:#f59e0b"><span class="text-lg">🗓️</span></div><div class="flex-1 min-w-0"><div class="font-bold text-sm">${m} ${pl(m, w)} подряд</div><div class="text-xs text-zinc-500 mt-0.5">Заходи на сайт каждый день</div></div>${cl ? '<span class="text-xs font-bold acc-text">Получено</span>' : ok ? `<button data-a="loginClaim" data-m="${m}" class="btn !py-2 !px-3 text-xs">+${r} 🪙</button>` : `<span class="text-xs text-amber-300/80 font-bold">+${r} 🪙</span>`}</div><div class="mt-3">${bar(Math.min(st, m) / m, '')}</div></div>`; }).join('')}</div>`;
+}
+function promoHTML(){
+  const p = state.promo;
+  return `<div class="mt-4 p-3 rounded-2xl border border-white/5"><div class="label">Промокод</div><div class="flex gap-2 mt-1"><input id="promoIn" maxlength="30" autocapitalize="off" autocomplete="off" autocorrect="off" placeholder="Введи промокод" class="inp flex-1 min-w-0"><button type="button" data-a="promoApply" class="btn-soft shrink-0">Активировать</button></div>
+  ${p.editOwned ? `<div class="flex items-center gap-3 mt-3"><div class="flex-1"><div class="text-sm font-semibold">Правка дней</div><div class="text-xs text-zinc-500">${p.edit ? 'Включена: можно менять дни и серии' : 'Отключена'}</div></div><button type="button" data-a="promoEdit" class="btn-soft !py-2 text-xs shrink-0">${p.edit ? 'Отключить' : 'Включить'}</button></div>` : ''}</div>`;
+}
+/* зверушки: ночью (тёмная тема) спят, сова спит днём; нажатие будит */
+let petWoke = {};
+const sleepingPet = id => { const night = modeNow() === 'dark', base = id === 'owl' ? !night : night; return base && petWoke[id] !== modeNow(); };
+const animPet = (id, inner) => { const sl = sleepingPet(id); return `<div data-a="petTap" data-id="${id}" class="pet-a ${sl ? 'pet-sleep' : 'pet-awake'}" style="animation-delay:-${(id.charCodeAt(0) % 7) * .3}s">${inner}${sl ? '<span class="zzz">z</span><span class="zzz z2">z</span>' : ''}</div>`; };
+const otherPets = () => { const o = (state.shop.pets || []).filter(id => id !== state.shop.pet).map(id => PETS.find(p => p.id === id)).filter(Boolean); return o.length ? `<div class="flex justify-center gap-4 mt-4">${o.map(p => animPet(p.id, `<span class="text-3xl">${p.e}</span>`)).join('')}</div>` : ''; };
+let statSel = null;
+const MNG = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'], MNN = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'], MNS = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+function dayDetail(k){
+  const d = fromKey(k), q = {}, parts = [];
+  Object.keys((state.quests.done || {})[k] || {}).forEach(id => { const c = id.split(':')[1]; q[c] = (q[c] || 0) + 1; });
+  Object.entries(q).forEach(([c, n]) => parts.push(`${MOD[c] ? esc(MOD[c].t) : esc(c)}: ${n}`));
+  if ((state.ort.days || {})[k]) parts.push(`ОРТ: ${state.ort.days[k].m || 0} мин`);
+  if ((state.gym.workouts || {})[k]) parts.push('Тренировка');
+  Object.entries(state.skills || {}).forEach(([id, v]) => { if (v.days && v.days[k] && MOD[id]) parts.push(esc(MOD[id].t)); });
+  return `<div class="card p-4 mt-3"><div class="font-bold">${DOW_S[d.getUTCDay()]}, ${d.getUTCDate()} ${MNG[d.getUTCMonth()]}</div><div class="text-xs text-zinc-500 mt-1">${parts.length ? parts.join(' · ') : 'Активности не было'}${state.visits && state.visits[k] ? ' · заходил на сайт' : ''}</div></div>`;
+}
 /* --- онбординг --- */
 let ob = null, onbOpen = false;
 function obInit(){ const o = state.onb; ob = {step:0, name:state.profile.name === 'Игрок' ? '' : state.profile.name, picks:new Set(o.picks), role:o.role || '', goal:o.goal || '', money:(state.skills.money && state.skills.money.target) || '', custom:[...(o.custom || [])], cat:'sport', lvl:{...(o.level || {})}, focus:o.focus || '', time:o.time || '', pre:(o.picks || []).length > 0}; }
@@ -802,8 +846,8 @@ V.home = () => {
       </div>
     </div>
     <div class="card p-4 flex flex-col items-center justify-center text-center relative overflow-hidden" ${pet ? '' : 'style="display:none"'}>
-      ${pet ? `<div class="text-xs text-zinc-300 bg-white/[.06] rounded-2xl rounded-bl-sm px-3 py-2 mb-4 max-w-[240px]">${petMood()}</div>
-        <div class="pt-4">${petHTML(78)}</div>
+      ${pet ? `<div class="text-xs text-zinc-300 bg-white/[.06] rounded-2xl rounded-bl-sm px-3 py-2 mb-4 max-w-[240px]">${sleepingPet(pet.id) ? 'Zzz… он спит. Нажми, чтобы разбудить' : petMood()}</div>
+        <div class="pt-4">${animPet(pet.id, petHTML(78))}</div>${otherPets()}
         <div class="mt-3 font-bold">${esc(state.shop.petName || pet.n)}</div>
         <a href="#shop" data-tab="pets" class="text-xs acc-text mt-1">Гардероб</a>`
       : `<div class="w-16 h-16 rounded-2xl bg-white/[.04] grid place-items-center text-3xl">🥚</div>
@@ -959,7 +1003,7 @@ V.ort = () => {
   <div class="card p-5 mt-3">
     <div class="flex justify-between items-center mb-4"><div class="font-bold">Неделя</div><div class="text-sm text-zinc-400">${ortWeek()}/5 будних дней</div></div>
     ${weekStrip(state.ort.days, {vacation:true, action:'ortDay'})}
-     <p class="text-[11px] text-zinc-600 mt-3">Нажми на день, чтобы отметить или снять подготовку (по умолчанию 60 мин). Будущие дни недоступны.</p>
+     <p class="text-[11px] text-zinc-600 mt-3">Отметить можно только сегодняшний день: заходи каждый день. Правка прошлых дней открывается промокодом.</p>
   </div>
   <div class="grid grid-cols-3 gap-3 mt-3">
     <div class="card p-4"><div class="label">Серия</div><div class="text-xl font-extrabold mt-1">${ortStreak()} 🔥</div></div>
@@ -1112,8 +1156,8 @@ V.quests = () => {
     const v = w.v(), ok = v >= w.g, cl = wc[w.id];
     return `<div class="card p-4 ${cl ? 'opacity-60' : ''}">
       <div class="flex items-center gap-3"><div class="ico !w-9 !h-9 !rounded-xl" style="--h:${QHUE[w.i === 'skate' ? 'skate' : 'school']}">${icon(w.i)}</div>
-      <div class="flex-1 min-w-0"><div class="text-sm font-semibold">${w.t}</div><div class="text-xs text-zinc-500 mt-0.5">${Math.min(v, w.g)} / ${w.g} ${w.u || ''} · <span class="text-amber-300/80">+${w.r} 🪙</span></div></div>
-      ${cl ? `<span class="text-xs acc-text font-bold">Получено</span>` : `<button data-a="wqClaim" data-id="${w.id}" class="btn !py-2 !px-3 text-xs" ${ok ? '' : 'disabled'}>Забрать</button>`}</div>
+      <div class="flex-1 min-w-0"><div class="text-sm font-semibold">${w.t}</div><div class="text-xs text-zinc-500 mt-0.5">${Math.min(v, w.g)} / ${w.g} ${w.u || ''}</div></div>
+      ${ok ? '<span class="text-xs acc-text font-bold">✓ Выполнено</span>' : ''}</div>
       ${bar(v / w.g)}
     </div>`; }).join('')}</div></div>`;
 };
@@ -1132,7 +1176,7 @@ const mineCard = m => {
     <div class="flex items-center gap-3">
       <div class="w-11 h-11 rounded-xl grid place-items-center ${ok ? 'acc-bg' : 'acc-soft'}"><i data-lucide="star" class="w-5 h-5"></i></div>
       <div class="flex-1 min-w-0"><div class="font-bold text-sm break-words">${esc(m.t)}</div><div class="text-xs text-zinc-500 mt-0.5">Моё${m.rep ? ' · каждую неделю' : ''}</div></div>
-      ${m.cl ? `<span class="text-xs font-bold acc-text flex items-center gap-1"><i data-lucide="medal" class="w-4 h-4"></i>Есть</span>` : ok ? `<button data-a="mineClaim" data-id="${m.id}" class="btn !py-2 !px-3 text-xs">+${m.r} 🪙</button>` : `<span class="text-xs text-amber-300/80 font-bold">+${m.r} 🪙</span>`}
+      ${ok ? '<span class="text-xs font-bold acc-text">✓ Выполнено</span>' : ''}
     </div>
     <div class="flex items-center gap-3 mt-3"><div class="flex-1">${bar(m.v / m.g, '')}</div><span class="text-[11px] text-zinc-500 tabular-nums">${m.v}/${m.g}</span></div>
     <div class="flex items-center gap-2 mt-3">${b(-1, '−1')}${b(1, '+1')}${m.g >= 10 ? b(5, '+5') : ''}<span class="flex-1"></span>
@@ -1141,8 +1185,8 @@ const mineCard = m => {
 };
 const mineForm = `<form data-f="mineAdd" class="card p-4 mt-3 grid grid-cols-2 gap-2">
   <input name="t" placeholder="Например: выучить 30 слов" class="inp col-span-2" required maxlength="60">
-  <label class="block"><span class="label">Цель (число)</span><input name="g" type="number" min="1" max="999" value="1" class="inp w-full mt-1"></label>
-  <label class="block"><span class="label">Награда, 🪙 (до 100)</span><input name="r" type="number" min="1" max="100" value="20" class="inp w-full mt-1"></label>
+  <label class="block col-span-2"><span class="label">Цель (число)</span><input name="g" type="number" min="1" max="999" value="1" class="inp w-full mt-1"></label>
+  
   <label class="col-span-2 flex items-center gap-2 text-sm text-zinc-400"><input type="checkbox" name="rep" class="w-4 h-4 rounded"> Повторять каждую неделю</label>
   <button class="btn col-span-2">Добавить своё достижение</button>
 </form>`;
@@ -1154,12 +1198,13 @@ V.achievements = () => {
       <div class="flex items-center gap-3">
         <div class="w-11 h-11 rounded-xl grid place-items-center ${ok ? 'acc-bg' : 'bg-white/[.04] text-zinc-500'}">${icon(a.i, 'w-5 h-5')}</div>
         <div class="flex-1 min-w-0"><div class="font-bold text-sm">${a.t}</div><div class="text-xs text-zinc-500 mt-0.5">${a.d}</div></div>
-        ${cl ? `<span class="text-xs font-bold acc-text flex items-center gap-1"><i data-lucide="medal" class="w-4 h-4"></i>Есть</span>` : ok ? `<button data-a="achClaim" data-id="${a.id}" class="btn !py-2 !px-3 text-xs">+${a.r} 🪙</button>` : `<span class="text-xs text-zinc-600 flex items-center gap-1"><i data-lucide="lock" class="w-3.5 h-3.5"></i>${a.r}</span>`}
+        ${ok ? '<span class="text-xs font-bold acc-text">✓ Выполнено</span>' : '<span class="text-xs text-zinc-600 flex items-center gap-1"><i data-lucide="lock" class="w-3.5 h-3.5"></i></span>'}
       </div>
       <div class="flex items-center gap-3 mt-3"><div class="flex-1">${bar(v / g, '')}</div><span class="text-[11px] text-zinc-500 tabular-nums">${Math.min(v, g)}/${g}</span></div>
     </div>`; }).join('');
   return `<div class="fade">
   <div class="flex items-center gap-3 mb-5"><div class="ico" style="--h:#fbbf24"><i data-lucide="trophy"></i></div><div><h1 class="text-xl font-bold">Достижения</h1><p class="text-xs text-zinc-500">Обновляются каждую неделю и каждый месяц</p></div></div>
+  ${loginBlock()}
   ${sectionTitle('Мои за неделю', `<span class="text-xs text-zinc-500">свои цели</span>`)}
   ${mine.length ? `<div class="grid sm:grid-cols-2 gap-3">${mine.map(mineCard).join('')}</div>` : `<p class="text-sm text-zinc-500">Пока пусто — добавь своё достижение ниже.</p>`}
   ${mineForm}
@@ -1208,6 +1253,7 @@ document.addEventListener('pointerdown', e => { lastTap = {x:e.clientX, y:e.clie
 function floatCoin(n){ const d = document.createElement('div'); d.className = 'coinfloat'; d.textContent = '+' + n + ' 🪙'; d.style.left = (lastTap ? lastTap.x : innerWidth / 2) + 'px'; d.style.top = ((lastTap ? lastTap.y : innerHeight / 2) - 20) + 'px'; document.body.appendChild(d); setTimeout(() => d.remove(), 1000); if (navigator.vibrate) navigator.vibrate(15); }
 function render(){
   regCustom();
+  if (state.onb.done) markVisit();
   const onbShow = !state.onb.done || onbOpen;
   document.body.classList.toggle('onb', onbShow);
   if (onbShow) { if (!ob) obInit(); $('#view').innerHTML = V.onboard(); $('#coins').textContent = state.coins; $('#avatar').textContent = state.profile.avatar; if (window.lucide) lucide.createIcons(); return; }
@@ -1227,7 +1273,7 @@ const modePref = () => { try { const m = localStorage.getItem(MKEY); return m ==
 const modeNow = () => { const p = modePref(); return p === 'auto' ? (sysLight.matches ? 'light' : 'dark') : p; };
 function paintMode(){ const b = $('#modeBtn'); if (b) b.innerHTML = icon(modeNow() === 'light' ? 'moon' : 'sun', 'w-[18px] h-[18px]'); }
 function applyMode(){ const m = modeNow(); document.documentElement.dataset.mode = m; $('meta[name=theme-color]')?.setAttribute('content', m === 'light' ? '#f4f4f8' : '#09090b'); paintMode(); }
-function setMode(p){ try { localStorage.setItem(MKEY, p); } catch {} applyMode(); }
+function setMode(p){ petWoke = {}; setTimeout(() => { try { render(); } catch {} }, 0); try { localStorage.setItem(MKEY, p); } catch {} applyMode(); }
 sysLight.addEventListener?.('change', () => { if (modePref() === 'auto') applyMode(); });
 
 function applyTheme(){
@@ -1282,6 +1328,7 @@ function profileModal(){
     <div class="mt-4"><span class="label">Оформление</span><div class="grid grid-cols-3 gap-2 mt-1">${[['light', 'Светлая', 'sun'], ['dark', 'Тёмная', 'moon'], ['auto', 'Авто', 'monitor']].map(([m, t, i]) => `<button type="button" data-a="modeSet" data-m="${m}" class="chip !rounded-xl flex items-center justify-center gap-1.5 ${modePref() === m ? 'on' : ''}">${icon(i, 'w-4 h-4')}${t}</button>`).join('')}</div></div>
     <button type="button" data-a="onbRedo" class="btn-soft w-full mt-3 text-sm">Изменить интересы и цели</button>
     <button type="button" data-a="about" class="btn-ghost w-full mt-1 text-xs">О сайте</button>
+    ${promoHTML()}
     <form data-f="profile" class="mt-4 space-y-3">
       <label class="block"><span class="label">Имя игрока</span><input name="n" maxlength="24" value="${esc(state.profile.name)}" class="inp w-full mt-1"></label>
       <div><span class="label">Аватар</span><div class="grid grid-cols-5 gap-2 mt-1">${AVATARS.map(a => `<label class="cursor-pointer"><input type="radio" name="a" value="${a}" class="peer hidden" ${state.profile.avatar === a ? 'checked' : ''}><div class="text-2xl py-2 rounded-xl text-center bg-white/[.03] border border-white/5 peer-checked:border-white/50 peer-checked:bg-white/10">${a}</div></label>`).join('')}</div></div>
@@ -1296,7 +1343,7 @@ const subjOf = el => SUBJECTS[+el.dataset.s];
 const A = {
   close: closeModal,
   mineInc(el){ const m = state.mine.find(x => x.id === el.dataset.id); if (!m || m.cl) return; m.v = Math.max(0, Math.min(m.g, m.v + (+el.dataset.n || 0))); persist(); render(); },
-  mineClaim(el){ const m = state.mine.find(x => x.id === el.dataset.id); if (!m || m.cl || m.v < m.g) return; m.cl = true; earn(m.r, `достижение «${m.t}»`); render(); },
+  mineClaim(el){ const m = state.mine.find(x => x.id === el.dataset.id); if (!m || m.cl || m.v < m.g) return; m.cl = true; render(); },
   mineDel(el){ const m = state.mine.find(x => x.id === el.dataset.id); if (!m) return; confirmBox(`Удалить достижение «${esc(m.t)}»?`, () => { state.mine = state.mine.filter(x => x !== m); persist(); render(); }); },
   confirmYes(){ const f = onConfirm; onConfirm = null; closeModal(); f && f(); },
   profile: profileModal,
@@ -1326,7 +1373,16 @@ const A = {
   unarchive(el){ const id = el.dataset.id, o = state.onb; if (o.picks.length >= 10) return toast('Максимум 10 направлений'); o.archive = (o.archive || []).filter(x => x !== id); if (!o.picks.includes(id)) o.picks.push(id); persist(); render(); toast('♻️ Направление возвращено'); },
   onbRedo(){ closeModal(); obInit(); onbOpen = true; render(); scrollTo({top:0}); },
   skTask(el){ const id = route(), i = +el.dataset.i, k = today(), s = sk(id), d = (s.done[k] ||= {}); if (d[i]) return; const t = genList(id).find(x => x[0] === skTasks(id, k)[i][0]); d[i] = true; s.days[k] = true; earn(t ? t[1] : 15, MOD[id].t); render(); },
-  skDay(el){ const s = sk(route()), k = el.dataset.k; if (s.days[k]) delete s.days[k]; else s.days[k] = true; persist(); render(); },
+  skDay(el){ if (!dayOk(el)) return; const s = sk(route()), k = el.dataset.k; if (s.days[k]) delete s.days[k]; else s.days[k] = true; persist(); render(); },
+  loginClaim(el){ const m = +el.dataset.m, r = (LOGIN.find(x => x[0] === m) || [])[1]; if (!r || state.loginClaimed[m] || visitStreak() < m) return; state.loginClaimed[m] = true; earn(r, `${m} дней подряд на сайте`); render(); },
+  promoApply(){ const i = $('#promoIn'), code = (i && i.value || '').trim().toLowerCase(), h = hashS(code), kind = PROMO[h]; if (!code) return toast('Введи промокод');
+    if (!kind) return toast('❌ Такого промокода нет');
+    if (kind === 'coins') { if (state.promo.used[h]) return toast('Этот промокод уже активирован'); state.promo.used[h] = true; state.coins += 250; floatCoin(250); persist(); toast('🎁 <b>+250</b> 🪙 по промокоду'); }
+    else { if (state.promo.editOwned) return toast('Правка дней уже есть: включи её переключателем'); state.promo.editOwned = true; state.promo.edit = true; persist(); toast('🔓 Правка дней включена'); }
+    profileModal(); render(); },
+  promoEdit(){ if (!state.promo.editOwned) return; state.promo.edit = !state.promo.edit; persist(); toast(state.promo.edit ? '🔓 Правка дней включена' : '🔒 Правка дней отключена'); profileModal(); render(); },
+  petTap(el){ const id = el.dataset.id; if (sleepingPet(id)) { petWoke[id] = modeNow(); render(); toast('👀 Проснулся!'); } else { el.classList.remove('pet-hop'); void el.offsetWidth; el.classList.add('pet-hop'); toast('💛'); } },
+  statDay(el){ statSel = el.dataset.k; render(); },
   keepCloud(){ const r = pendingRemote; hold = false; pendingRemote = null; closeModal(); if (r) takeRemote(r); sync = 'cloud'; paintSync(); toast('☁️ Взят прогресс из облака'); },
   keepLocal(){ const r = pendingRemote; hold = false; pendingRemote = null; closeModal(); if (r) saveBackup(r, 'cloud'); persist(); toast('📱 Оставлен прогресс этого устройства'); },
   restoreBackup(){ const b = getBackup(); if (!b || !b.state) return; confirmBox('Вернуть сохранённую копию прогресса? Текущий прогресс на этом устройстве и в облаке заменится ею.', () => { saveBackup(state, 'prev'); state = migrate(b.state); persist(); render(); toast('♻️ Копия восстановлена'); }); },
@@ -1349,17 +1405,17 @@ const A = {
   qDone(el){ const q = dailyQuests().find(x => x.id === el.dataset.id); if (!q || qDone(q)) return;
     (state.quests.done[today()] ||= {})[q.id] = true; earn(q.r, 'квест выполнен'); render(); },
   wqClaim(el){ const w = WQ.find(x => x.id === el.dataset.id), wk = weekStart(); const c = (state.quests.weekly[wk] ||= {});
-    if (!w || c[w.id] || w.v() < w.g) return; c[w.id] = true; earn(w.r, 'недельный квест'); render(); },
+    if (!w || c[w.id] || w.v() < w.g) return; c[w.id] = true; render(); },
   achClaim(el){ const a = ACH.find(x => x.id === el.dataset.id); if (!a) return; const k = achKey(a);
-    if (state.ach[k] || a.v() < achGoal(a)) return; state.ach[k] = true; earn(a.r, `достижение «${a.t}»`); render(); },
+    if (state.ach[k] || a.v() < achGoal(a)) return; state.ach[k] = true; render(); },
   readAdd(el){ const n = +el.dataset.n; addPages(n); persist(); render(); toast(`📖 +${n} стр. засчитано`); },
   delBook(el){ const b = state.books.find(x => x.id === el.dataset.id); if (!b) return;
     confirmBox(`Удалить книгу «${esc(b.title)}»?`, () => { state.books = state.books.filter(x => x !== b); persist(); render(); }); },
   skill(el){ const s = state.skate.skills, id = el.dataset.id; if (s[id]) delete s[id]; else { s[id] = today(); toast('🛹 Навык освоен!'); } persist(); render(); },
-  gymDay(el){ const w = state.gym.workouts, k = el.dataset.k; if (w[k]) delete w[k]; else w[k] = true; persist(); render(); },
+  gymDay(el){ if (!dayOk(el)) return; const w = state.gym.workouts, k = el.dataset.k; if (w[k]) delete w[k]; else w[k] = true; persist(); render(); },
   gymReset(){ const g = state.gym; confirmBox('Текущий вес тела станет стартовым для нового месяца.', () => { if (g.curWeight !== '') g.startWeight = g.curWeight; persist(); render(); }); },
   ortSec(el){ const s = el.dataset.s; ortSel.has(s) ? ortSel.delete(s) : ortSel.add(s); el.classList.toggle('on'); },
-  ortDay(el){ const d = state.ort.days, k = el.dataset.k; if (d[k]) delete d[k]; else d[k] = {m:60, s:[]}; persist(); render(); },
+  ortDay(el){ if (!dayOk(el)) return; const d = state.ort.days, k = el.dataset.k; if (d[k]) delete d[k]; else d[k] = {m:60, s:[]}; persist(); render(); },
   ortUndo(){ delete state.ort.days[today()]; persist(); render(); },
   engLevel(el){ state.eng.level = el.dataset.l; persist(); render(); },
   engStep(el){ const s = state.eng.steps, id = el.dataset.id; if (s[id]) delete s[id]; else s[id] = today(); persist(); render(); },
@@ -1411,7 +1467,7 @@ function sCheck(){
 const F = {
   skGoal(f){ const id = route(), s = sk(id); s.goal = f.goal.value.trim().slice(0, 140); if (f.target) { s.target = f.target.value.trim().slice(0, 30); s.saved = Math.max(0, num(f.saved.value)); } persist(); render(); toast('💾 Цель сохранена'); },
   mineAdd(f){ const t = f.t.value.trim(); if (!t) return;
-    state.mine.push({id:uid(), t, g:Math.round(clamp(num(f.g.value), 1, 999)), v:0, r:Math.round(clamp(num(f.r.value), 1, 100)), rep:f.rep.checked, wk:weekStart(), cl:false});
+    state.mine.push({id:uid(), t, g:Math.round(clamp(num(f.g.value), 1, 999)), v:0, r:0, rep:f.rep.checked, wk:weekStart(), cl:false});
     persist(); render(); toast('⭐ Достижение добавлено'); },
   readGoal(f){ state.readGoal = Math.max(1, Math.round(num(f.g.value))) || 200; persist(); render(); },
   addBook(f){ const total = Math.max(1, Math.round(num(f.total.value))), read = Math.min(total, Math.max(0, Math.round(num(f.read.value))));
