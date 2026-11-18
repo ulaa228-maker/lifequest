@@ -434,7 +434,7 @@ const P = {
   gym(){ const g = state.gym;
     const mass = g.startWeight !== '' && g.curWeight !== '' ? (num(g.curWeight) - num(g.startWeight)) / 3 : 0;
     const bench = g.curBench !== '' ? num(g.curBench) / 80 : 0;
-    return clamp(Math.max(weekCount(g.workouts) / 4, mass, bench)); },
+    return clamp(weekCount(g.workouts) / 4); },
   ort(){ return ortWeek() / 5; },
   english(){ return ENG.filter(([id]) => state.eng.steps[id]).length / ENG.length; },
   sudoku(){ return Object.values(state.sudoku.solved).filter(v => v > 0).length / 4; }
@@ -599,6 +599,36 @@ function petHTML(size = 64, bob = true){
   const a = s => { const it = ACCS.find(x => x.id === eq[s]); return it ? `<span class="acc ${s}">${it.e}</span>` : ''; };
   return `<span class="pet ${bob ? 'bob' : ''}" style="font-size:${size}px">${p.e}${a('head')}${a('face')}${a('neck')}</span>`;
 }
+const monthKeysNow = () => { const t = today(), pre = t.slice(0, 7), n = +t.slice(8); return Array.from({length:n}, (_, i) => pre + '-' + String(i + 1).padStart(2, '0')); };
+const dimNow = () => { const t = today(); return new Date(Date.UTC(+t.slice(0, 4), +t.slice(5, 7), 0)).getUTCDate(); };
+function modActive(id, k){
+  const s = state;
+  if (id === 'gym' && s.gym.workouts[k]) return true;
+  if (id === 'ort' && s.ort.days[k]) return true;
+  if (id === 'reading' && num((s.readLog || {})[k]) > 0) return true;
+  if (id === 'sudoku' && (s.sudoku.hist || []).some(h => h.d === k)) return true;
+  if (s.skills && s.skills[id] && s.skills[id].days && s.skills[id].days[k]) return true;
+  return Object.keys((s.quests.done || {})[k] || {}).some(q => q.split(':')[1] === id);
+}
+function periodCells(id){
+  const t = today(), wk = weekDays().filter(k => k <= t), mo = monthKeysNow(), dim = dimNow(), g = state.gym;
+  let w, m;
+  if (id === 'gym') {
+    const n = weekCount(g.workouts), mass = g.startWeight !== '' && g.curWeight !== '' ? (num(g.curWeight) - num(g.startWeight)) / 3 : 0, bench = g.curBench !== '' ? num(g.curBench) / 80 : 0;
+    w = {p:clamp(n / 4), t:`${n} из 4 тренировок`}; m = {p:clamp(Math.max(mass, bench)), t:'цели на месяц'};
+  } else if (id === 'reading') {
+    const wp = wk.reduce((a, k) => a + num((state.readLog || {})[k]), 0), wg = Math.max(1, Math.round(state.readGoal * 7 / dim)), mp = monthRead();
+    w = {p:clamp(wp / wg), t:`${wp} из ${wg} стр.`}; m = {p:clamp(mp / state.readGoal), t:`${mp} из ${state.readGoal} стр.`};
+  } else {
+    const tg = id === 'ort' ? 5 : wTarget(id), nw = wk.filter(k => modActive(id, k)).length, nm = mo.filter(k => modActive(id, k)).length, ex = Math.max(1, Math.round(tg * dim / 7));
+    w = {p:clamp(nw / tg), t:`${nw} из ${tg} дней`}; m = {p:clamp(nm / ex), t:`${nm} из ${ex} дней`};
+  }
+  return {w, m};
+}
+function cellsHTML(id){
+  const c = periodCells(id), cell = (t, x) => `<div class="card p-3 flex items-center gap-3"><div class="shrink-0">${ringBox(x.p, 54, 5)}</div><div class="min-w-0"><div class="label">${t}</div><div class="text-sm font-bold leading-tight">${x.t}</div></div></div>`;
+  return `<div class="grid grid-cols-2 gap-3 mt-3">${cell('Неделя', c.w)}${cell('Месяц', c.m)}</div>`;
+}
 function pageHead(id, sub){
   const m = MOD[id];
   return `<div class="mb-5"><div class="flex items-center gap-3 mb-3">
@@ -606,7 +636,7 @@ function pageHead(id, sub){
     <div class="ico" style="--h:${m.h}">${icon(m.i)}</div>
     <div class="flex-1 min-w-0"><h1 class="text-xl font-bold truncate">${m.t}</h1><p class="text-xs text-zinc-500 truncate">${sub}</p></div>
     ${ringBox(P[id](), 58, 6)}
-  </div>${lvRow(id)}</div>`;
+  </div>${lvRow(id)}${cellsHTML(id)}</div>`;
 }
 const sectionTitle = (t, extra = '') => `<div class="flex items-center justify-between mt-8 mb-3"><h2 class="text-sm font-bold uppercase tracking-wider text-zinc-400">${t}</h2>${extra}</div>`;
 function weekStrip(obj, opts = {}){
