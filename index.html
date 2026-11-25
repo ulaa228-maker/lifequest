@@ -264,7 +264,8 @@ function defaultState(){
     skate:{skills:{}, sessions:{}},
     gym:{workouts:{}, startWeight:'', curWeight:'', startBench:'', curBench:''},
     ort:{days:{}, exam:''},
-    eng:{steps:{}, level:'A1', practice:{}},
+    eng:{steps:{}, level:'A1', practice:{}, days:{}},
+    swim:{days:{}, km:{}, goal:8},
     sudoku:{solved:{easy:0,medium:0,hard:0,expert:0}, log:{}, hist:[], cur:null},
     school:subjects,
     quests:{done:{}, weekly:{}},
@@ -275,7 +276,7 @@ function defaultState(){
 function migrate(s){
   const d = defaultState();
   const out = Object.assign(d, s || {});
-  for (const k of ['profile','stats','skate','gym','ort','eng','sudoku','quests','shop']) out[k] = Object.assign(defaultState()[k], (s||{})[k] || {});
+  for (const k of ['profile','stats','skate','gym','ort','eng','swim','sudoku','quests','shop']) out[k] = Object.assign(defaultState()[k], (s||{})[k] || {});
   out.onb = Object.assign({done:false,picks:[],role:'',goal:'',money:'',custom:[],level:{},archive:[]}, out.onb || {});
   if (s && s.v && !s.onb) { out.onb.done = true; out.onb.picks = ['reading','skate','gym','ort','english','sudoku']; }
   out.skills = out.skills || {};
@@ -549,6 +550,7 @@ const SVGI = {
   'pen':'<path d="M4 20l1-4.5L16.5 4a2.1 2.1 0 013 3L8 18.5 4 20z"/><path d="M14.5 6l3 3"/>',
   'mosque':'<path d="M4 20v-7h16v7M3 20h18"/><path d="M7 13a5 5 0 0110 0"/><path d="M12 8V5.5M11 5.5h2"/><path d="M4 13V9M2.8 9h2.4M20 13V9M18.8 9h2.4"/><path d="M10.5 20v-3a1.5 1.5 0 013 0v3"/>',
   'star':'<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8L3.5 9.7l5.9-.8L12 3.5z"/>',
+  'swim':'<circle cx="16.5" cy="6.5" r="2"/><path d="M3 18c1.5 1 3 1 4.5 0s3-1 4.5 0 3 1 4.5 0 3-1 4.5 0M5 13l4-3 3.5 2 3-2"/>',
   'sun':'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   'moon':'<path d="M20 14.5A8.5 8.5 0 019.5 4a8.5 8.5 0 1010.5 10.5z"/>',
   'monitor':'<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>'
@@ -605,6 +607,8 @@ function modActive(id, k){
   const s = state;
   if (id === 'gym' && s.gym.workouts[k]) return true;
   if (id === 'ort' && s.ort.days[k]) return true;
+  if (id === 'english' && (s.eng.days || {})[k]) return true;
+  if (id === 'swim' && (s.swim.days || {})[k]) return true;
   if (id === 'reading' && num((s.readLog || {})[k]) > 0) return true;
   if (id === 'sudoku' && (s.sudoku.hist || []).some(h => h.d === k)) return true;
   if (s.skills && s.skills[id] && s.skills[id].days && s.skills[id].days[k]) return true;
@@ -619,6 +623,9 @@ function periodCells(id){
   } else if (id === 'reading') {
     const wp = wk.reduce((a, k) => a + num((state.readLog || {})[k]), 0), wg = Math.max(1, Math.round(state.readGoal * 7 / dim)), mp = monthRead();
     w = {p:clamp(wp / wg), t:`${wp} из ${wg} стр.`}; m = {p:clamp(mp / state.readGoal), t:`${mp} из ${state.readGoal} стр.`};
+  } else if (id === 'swim') {
+    const km = swimKmMonth(), gl = Math.max(1, num(state.swim.goal) || 8), n = weekCount(state.swim.days), tg = swimTarget();
+    w = {p:clamp(n / tg), t:`${n} из ${tg} тренировок`}; m = {p:clamp(km / gl), t:`${km.toFixed(1)} из ${gl} км`};
   } else {
     const tg = id === 'ort' ? 5 : wTarget(id), nw = wk.filter(k => modActive(id, k)).length, nm = mo.filter(k => modActive(id, k)).length, ex = Math.max(1, Math.round(tg * dim / 7));
     w = {p:clamp(nw / tg), t:`${nw} из ${tg} дней`}; m = {p:clamp(nm / ex), t:`${nm} из ${ex} дней`};
@@ -683,6 +690,7 @@ const GEN = [
   {id:'sleep',t:'Режим сна',i:'sleep',h:'#818cf8',tasks:['Ложись до 23:00','Выключи экран за 30 минут до сна','Проснись в одно и то же время','Не пей кофе после обеда']},
   {id:'water',t:'Питьё воды',i:'drop',h:'#38bdf8',tasks:['Выпей стакан воды сразу после пробуждения','Выпей 2 литра воды за день','Замени сладкий напиток водой','Носи с собой бутылку воды']},
   {id:'stretch',t:'Растяжка и йога',i:'stretch',h:'#34d399',tasks:['Сделай растяжку 10 минут','Размяться после долгого сидения','Сделай утреннюю зарядку','Постой в планке сколько сможешь']},
+  {id:'swim',t:'Плавание',i:'swim',h:'#0ea5e9',tasks:['Проплыви 500 метров','Отработай технику 10 минут','Сделай разминку перед бассейном','Проплыви 10 минут без остановки']},
   {id:'food',t:'Правильное питание',i:'apple',h:'#84cc16',tasks:['Съешь овощи или фрукты','Не ешь сладкое сегодня','Приготовь или выбери полезный обед','Запиши, что съел за день']},
   {id:'photo',t:'Фотография',i:'camera',h:'#f59e0b',tasks:['Сделай 5 осознанных кадров','Изучи один приём композиции','Обработай одну фотографию','Найди красивый кадр по пути']},
   {id:'career',t:'Карьера и навыки',i:'briefcase',h:'#60a5fa',tasks:['Изучи профессиональный навык 20 минут','Сделай один шаг к цели в работе','Обнови резюме или профиль','Напиши полезному человеку в своей сфере']},
@@ -694,7 +702,7 @@ const GEN = [
   {id:'namaz',t:'Намаз',i:'mosque',h:'#34d399',tasks:['Соверши обязательные намазы вовремя','Прочитай утренние и вечерние азкары','Прочитай несколько аятов Корана с переводом','Сделай дуа за близких','Изучи порядок омовения и намаза','Соверши намаз в джамаате']},
   {id:'write',t:'Писательство',i:'pen',h:'#c084fc',tasks:['Пиши 15 минут без остановки','Запиши идею дня','Перечитай и улучши вчерашний текст','Опиши свой день тремя абзацами']}
 ];
-const CATS = [['sport', '💪', 'Здоровье и спорт', ['gym', 'run', 'skate', 'sleep', 'water', 'stretch', 'food']], ['learn', '📚', 'Учёба и знания', ['reading', 'ort', 'english', 'code', 'memory']], ['mind', '🧠', 'Ум и логика', ['chess', 'sudoku']], ['create', '🎨', 'Творчество', ['draw', 'music', 'write', 'photo', 'cook']], ['money', '💰', 'Деньги и карьера', ['money', 'career']], ['soul', '🕌', 'Дух и душа', ['namaz', 'meditate', 'kind']], ['life', '🏠', 'Быт и порядок', ['clean', 'plan', 'detox']], ['mine', '⭐', 'Своё', []]];
+const CATS = [['sport', '💪', 'Здоровье и спорт', ['gym', 'swim', 'run', 'skate', 'sleep', 'water', 'stretch', 'food']], ['learn', '📚', 'Учёба и знания', ['reading', 'ort', 'english', 'code', 'memory']], ['mind', '🧠', 'Ум и логика', ['chess', 'sudoku']], ['create', '🎨', 'Творчество', ['draw', 'music', 'write', 'photo', 'cook']], ['money', '💰', 'Деньги и карьера', ['money', 'career']], ['soul', '🕌', 'Дух и душа', ['namaz', 'meditate', 'kind']], ['life', '🏠', 'Быт и порядок', ['clean', 'plan', 'detox']], ['mine', '⭐', 'Своё', []]];
 const catOf = id => (CATS.find(c => c[3].includes(id)) || CATS[CATS.length - 1])[0];
 const GENM = {};
 const LV = {1:'Начинающий', 2:'Средний', 3:'Сложный'}, LVT = {1:'Начинающий', 2:'Средний · уже делаю', 3:'Сложный · регулярно'}, LVP = {1:.45, 2:.75, 3:1};
@@ -705,10 +713,21 @@ const parseNum = v => parseFloat(String(v || '').replace(/\s/g, '').replace(',',
 const sk = id => (state.skills[id] ||= {days:{}, done:{}, goal:'', target:'', saved:0});
 const genList = id => { const g = GENM[id], raw = typeof g.tasks === 'function' ? g.tasks(state.onb.role) : g.tasks; return raw.map(x => Array.isArray(x) ? x : [x, 15]); };
 const skTasks = (id, k) => { const r = rng('s' + id + k); return genList(id).map(x => [x, r()]).sort((a, b) => a[1] - b[1]).slice(0, tCount(id)).map(x => x[0]); };
-function genProg(id){ const s = sk(id), t = parseNum(s.target); return id === 'money' && t > 0 ? clamp(num(s.saved) / t) : clamp(weekCount(s.days) / wTarget(id)); }
-function genStatus(id){ const s = sk(id), t = parseNum(s.target); return id === 'money' && t > 0 ? `Накоплено ${num(s.saved)} из ${t}` : `${weekCount(s.days)}/${wTarget(id)} дней на неделе`; }
+function genProg(id){ if (id === 'swim') return clamp(weekCount(state.swim.days) / swimTarget()); const s = sk(id), t = parseNum(s.target); return id === 'money' && t > 0 ? clamp(num(s.saved) / t) : clamp(weekCount(s.days) / wTarget(id)); }
+function genStatus(id){ if (id === 'swim') return `${weekCount(state.swim.days)}/${swimTarget()} тренировок на неделе`; const s = sk(id), t = parseNum(s.target); return id === 'money' && t > 0 ? `Накоплено ${num(s.saved)} из ${t}` : `${weekCount(s.days)}/${wTarget(id)} дней на неделе`; }
 function regGen(g){ GENM[g.id] = g; MOD[g.id] = g; QICON[g.id] = g.i; QHUE[g.id] = g.h; P[g.id] = () => genProg(g.id); V[g.id] = () => V.skill(g.id); }
 GEN.forEach(regGen);
+const swimTarget = () => [2, 3, 5][(lvOf('swim') || 2) - 1];
+const swimKmMonth = () => Object.entries(state.swim.km || {}).filter(([k]) => k.startsWith(today().slice(0, 7))).reduce((a, [, v]) => a + num(v), 0);
+V.swim = () => {
+  const sw = state.swim, n = weekCount(sw.days), tg = swimTarget(), km = swimKmMonth(), gl = Math.max(1, num(sw.goal) || 8), td = today();
+  return `<div class="fade">${pageHead('swim', `${n}/${tg} тренировок на неделе`)}
+  <div class="card p-5 mt-3"><div class="flex justify-between items-center mb-4"><div><div class="label">Эта неделя</div><div class="text-2xl font-extrabold mt-0.5">${n}<span class="text-zinc-500 text-base"> / ${tg} тренировок</span></div></div><div class="text-right"><div class="label">За месяц</div><div class="text-lg font-bold">${monthCount(sw.days)}</div></div></div>
+    ${weekStrip(sw.days, {action:'swimDay'})}<p class="text-[11px] text-zinc-600 mt-3">Отмечай день, когда был в бассейне. Отметить можно только сегодняшний день; правка прошлых дней открывается промокодом.</p></div>
+  <form data-f="swimKm" class="card p-5 mt-3"><div class="flex justify-between items-center"><div class="label">Сегодня проплыл, км</div><div class="text-xs text-zinc-500">за месяц: ${km.toFixed(1)} км</div></div><div class="flex gap-2 mt-2"><input name="km" type="number" step="0.1" min="0" max="20" value="${num(sw.km[td]) || ''}" placeholder="0.0" class="inp flex-1"><button class="btn-soft">Записать</button></div></form>
+  <form data-f="swimGoal" class="card p-5 mt-3"><div class="flex justify-between items-center"><div class="font-bold">Цель на месяц</div><div class="text-sm text-zinc-400 tabular-nums">${km.toFixed(1)} / ${gl} км</div></div><div class="mt-3">${bar(km / gl, '')}</div><div class="flex gap-2 mt-3"><input name="goal" type="number" step="0.5" min="1" max="200" value="${gl}" class="inp flex-1"><button class="btn-soft">Изменить цель</button></div></form>
+  <div class="card p-5 mt-3 flex gap-3"><div class="text-2xl">💡</div><p class="text-sm text-zinc-400">Лучше плавать понемногу, но регулярно: 2–3 раза в неделю. Начни с разминки и 10 минут спокойным темпом.</p></div></div>`;
+};
 const regCustom_ = c => { if (!GENM[c.id]) regGen({id:c.id, t:c.t, i:'star', h:'#f472b6', tasks:[`Потренируйся 20 минут: ${c.t}`, `Выучи что-то новое: ${c.t}`, `Сделай маленький шаг к цели: ${c.t}`, `Повтори вчерашнее и улучши: ${c.t}`]}); };
 function regCustom(){ (state.onb.custom || []).forEach(c => { if (!GENM[c.id]) regGen({id:c.id, t:c.t, i:'star', h:'#f472b6', tasks:[`Потренируйся 20 минут: ${c.t}`, `Выучи что-то новое: ${c.t}`, `Сделай маленький шаг к цели: ${c.t}`, `Повтори вчерашнее и улучши: ${c.t}`]}); }); }
 const myMods = () => { const m = state.onb.picks.map(id => MOD[id]).filter(Boolean); return m.length ? m : MODS; };
@@ -729,8 +748,8 @@ V.skill = id => {
 /* ============ статистика, серия, архив, верх главной ============ */
 const shiftKey = (k, n) => { const d = new Date(k + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 const pl = (n, f) => f[n % 10 === 1 && n % 100 !== 11 ? 0 : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 1 : 2];
-const cntK = k => Object.keys((state.quests.done || {})[k] || {}).length + ((state.ort.days || {})[k] ? 1 : 0) + ((state.gym.workouts || {})[k] ? 1 : 0) + Object.values(state.skills || {}).filter(v => v.days && v.days[k]).length;
-const actKeys = () => { const set = new Set(); const add = k => { if (cntK(k)) set.add(k); }; Object.keys(state.quests.done || {}).forEach(add); Object.keys(state.ort.days || {}).forEach(add); Object.keys(state.gym.workouts || {}).forEach(add); Object.values(state.skills || {}).forEach(v => Object.keys(v.days || {}).forEach(add)); return set; };
+const cntK = k => Object.keys((state.quests.done || {})[k] || {}).length + ((state.ort.days || {})[k] ? 1 : 0) + ((state.gym.workouts || {})[k] ? 1 : 0) + ((state.eng.days || {})[k] ? 1 : 0) + ((state.swim.days || {})[k] ? 1 : 0) + Object.values(state.skills || {}).filter(v => v.days && v.days[k]).length;
+const actKeys = () => { const set = new Set(); const add = k => { if (cntK(k)) set.add(k); }; Object.keys(state.quests.done || {}).forEach(add); Object.keys(state.ort.days || {}).forEach(add); Object.keys(state.gym.workouts || {}).forEach(add); Object.keys(state.eng.days || {}).forEach(add); Object.keys(state.swim.days || {}).forEach(add); Object.values(state.skills || {}).forEach(v => Object.keys(v.days || {}).forEach(add)); return set; };
 function streakInfo(){
   const set = actKeys(); let k = today(), now = 0; if (!set.has(k)) k = shiftKey(k, -1);
   while (set.has(k) && now < 4000) { now++; k = shiftKey(k, -1); }
@@ -1051,6 +1070,8 @@ V.ort = () => {
 V.english = () => {
   const tot = Object.values(state.eng.practice).reduce((a, b) => a + b, 0);
   return `<div class="fade">${pageHead('english', 'Запись на курсы и разговорная практика')}
+  <div class="card p-5 mt-3"><div class="flex justify-between items-center mb-4"><div><div class="label">Занятия на этой неделе</div><div class="text-2xl font-extrabold mt-0.5">${weekCount(state.eng.days)}<span class="text-zinc-500 text-base"> / ${wTarget('english')} дня</span></div></div><div class="text-right"><div class="label">За месяц</div><div class="text-lg font-bold">${monthCount(state.eng.days)}</div></div></div>
+    ${weekStrip(state.eng.days, {action:'engDay'})}<p class="text-[11px] text-zinc-600 mt-3">Отмечай день, когда ходил на английский. Отметить можно только сегодняшний день; правка прошлых дней открывается промокодом.</p></div>
   <div class="card p-5">
     <div class="label mb-3">Мой уровень</div>
     <div class="grid grid-cols-6 gap-2">${LEVELS.map(l => `<button data-a="engLevel" data-l="${l}" class="chip !rounded-xl !py-2.5 ${state.eng.level === l ? 'on' : ''}">${l}</button>`).join('')}</div>
@@ -1443,6 +1464,8 @@ const A = {
   delBook(el){ const b = state.books.find(x => x.id === el.dataset.id); if (!b) return;
     confirmBox(`Удалить книгу «${esc(b.title)}»?`, () => { state.books = state.books.filter(x => x !== b); persist(); render(); }); },
   skill(el){ const s = state.skate.skills, id = el.dataset.id; if (s[id]) delete s[id]; else { s[id] = today(); toast('🛹 Навык освоен!'); } persist(); render(); },
+  engDay(el){ if (!dayOk(el)) return; const d = state.eng.days, k = el.dataset.k; if (d[k]) delete d[k]; else d[k] = true; persist(); render(); },
+  swimDay(el){ if (!dayOk(el)) return; const d = state.swim.days, k = el.dataset.k; if (d[k]) { delete d[k]; delete state.swim.km[k]; } else d[k] = true; persist(); render(); },
   gymDay(el){ if (!dayOk(el)) return; const w = state.gym.workouts, k = el.dataset.k; if (w[k]) delete w[k]; else w[k] = true; persist(); render(); },
   gymReset(){ const g = state.gym; confirmBox('Текущий вес тела станет стартовым для нового месяца.', () => { if (g.curWeight !== '') g.startWeight = g.curWeight; persist(); render(); }); },
   ortSec(el){ const s = el.dataset.s; ortSel.has(s) ? ortSel.delete(s) : ortSel.add(s); el.classList.toggle('on'); },
@@ -1496,6 +1519,8 @@ function sCheck(){
   setTimeout(() => modal(`<div class="text-center"><div class="text-5xl">🧩</div><div class="text-xl font-bold mt-3">Головоломка решена!</div><p class="text-sm text-zinc-400 mt-1">Уровень «${SUD[lvl].n}» · +${r} 🪙</p><div class="grid grid-cols-2 gap-2 mt-6"><button data-a="close" class="btn-soft">Готово</button><button data-a="sNew" data-l="${lvl}" class="btn">Ещё одну</button></div></div>`), 150);
 }
 const F = {
+  swimKm(f){ const v = Math.max(0, Math.min(20, num(f.km.value))), k = today(); state.swim.km[k] = v; if (v > 0) state.swim.days[k] = true; persist(); render(); toast('🏊 Записано'); },
+  swimGoal(f){ state.swim.goal = Math.max(1, Math.min(200, num(f.goal.value) || 8)); persist(); render(); toast('💾 Цель сохранена'); },
   skGoal(f){ const id = route(), s = sk(id); s.goal = f.goal.value.trim().slice(0, 140); if (f.target) { s.target = f.target.value.trim().slice(0, 30); s.saved = Math.max(0, num(f.saved.value)); } persist(); render(); toast('💾 Цель сохранена'); },
   mineAdd(f){ const t = f.t.value.trim(); if (!t) return;
     state.mine.push({id:uid(), t, g:Math.round(clamp(num(f.g.value), 1, 999)), v:0, r:0, rep:f.rep.checked, wk:weekStart(), cl:false});
